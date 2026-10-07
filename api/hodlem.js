@@ -157,7 +157,7 @@ async function market(mint) {
       pairs.sort((a, b) => ((b.liquidity && b.liquidity.usd) || 0) - ((a.liquidity && a.liquidity.usd) || 0));
       const p = pairs[0];
       return {
-        priceUsd: +p.priceUsd || null, mcap: +(p.marketCap || p.fdv) || null, vol24: p.volume ? +p.volume.h24 || 0 : 0,
+        priceUsd: +p.priceUsd || null, priceSol: p.quoteToken && /^(SOL|WSOL)$/i.test(p.quoteToken.symbol) ? +p.priceNative || null : null, mcap: +(p.marketCap || p.fdv) || null, vol24: p.volume ? +p.volume.h24 || 0 : 0,
         chg24: p.priceChange ? +p.priceChange.h24 || 0 : 0, chg1: p.priceChange ? +p.priceChange.h1 || 0 : 0,
         txns24: p.txns && p.txns.h24 ? (p.txns.h24.buys || 0) + (p.txns.h24.sells || 0) : 0,
         liq: p.liquidity ? +p.liquidity.usd || 0 : 0, dex: p.dexId, pair: p.pairAddress, url: p.url,
