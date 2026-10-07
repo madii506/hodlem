@@ -22,7 +22,7 @@
 <link rel="icon" type="image/png" sizes="64x64" href="/img/icon-64.png">
 <link rel="apple-touch-icon" href="/img/icon-180.png">
 <link rel="preload" href="/fonts/ps2p.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/css/hodlem.css?v=3">
+<link rel="stylesheet" href="/css/hodlem.css?v=4">
 </head>
 <body>
 <div class="boot" id="boot" role="status" aria-live="polite">
@@ -34,38 +34,35 @@
     <div class="boot-skip blink">PRESS ANY KEY</div>
   </div>
 </div>
+<div class="offscreen" id="offScreen" hidden><p>It's now safe to HODL.</p><small>Click to turn it back on</small></div>
 <header class="top">
-  <div class="wrap top-in">
-    <nav class="nav" id="nav" aria-label="Sections">
-      <a href="#play">Play</a><a href="#proof">Proof</a><a href="#x">On X</a><a href="#token">$HODLEM</a><a href="#burn">Burn</a><a href="#tables">Tables</a><a href="#faq">FAQ</a>
-    </nav>
-    <span class="sp"></span>
-    <span class="pill" id="caPill" hidden><span class="lbl">CA</span><code id="caShort"></code><button type="button" id="caCopy">COPY</button></span>
-    <a class="pbtn orange" id="buyTop" href="#token">BUY</a>
-  </div>
+  <nav class="nav" id="nav" aria-label="Sections">
+    <a href="#play">PLAY</a><a href="#proof">PROOF</a><a href="#x">ON X</a><a href="#token">$HODLEM</a><a href="#burn">BURN</a><a href="#tables">TABLES</a><a href="#status">STATUS</a><a href="#faq">FAQ</a><a class="buy" id="buyTop" href="#token">BUY</a>
+  </nav>
 </header>
 
 <section class="hero" id="play">
   <div class="stars" id="stars1" aria-hidden="true"></div>
-  <div class="wrap hero-head">
-    <div class="lines">Satoshi's unfinished poker game.<br>Play on X. Dealt for the first time.</div>
-    <div class="press blink" id="press">PRESS ANY KEY TO DEAL</div>
-  </div>
   <div class="desk" id="desk">
     <div class="icons" id="icons" aria-label="Desktop">
       <button type="button" class="ico" data-open="mainWin"><img src="/img/i-coin.png" alt=""><span>Bitcoin</span></button>
       <button type="button" class="ico" data-open="lobbyWin"><img src="/img/i-lobby.png" alt=""><span>Poker Lobby</span></button>
       <button type="button" class="ico" data-open="pokerWin"><img src="/img/i-poker.png" alt=""><span>Poker</span></button>
       <button type="button" class="ico" data-open="webWin"><img src="/img/i-web.png" alt=""><span>hodlem.htm</span></button>
-      <button type="button" class="ico" data-open="cmdWin"><img src="/img/i-cmd.png" alt=""><span>Command Prompt</span></button>
-      <button type="button" class="ico" data-open="histWin"><img src="/img/i-hist.png" alt=""><span>Hand History.txt</span></button>
-      <button type="button" class="ico" data-open="readmeWin"><img src="/img/i-note.png" alt=""><span>readme.txt</span></button>
+      <button type="button" class="ico" data-open="monWin"><img src="/img/i-mon.png" alt=""><span>Monitor</span></button>
+      <button type="button" class="ico" data-open="calcWin"><img src="/img/i-calc.png" alt=""><span>Burn Calc</span></button>
       <button type="button" class="ico" data-open="binWin"><img src="/img/i-bin.png" alt=""><span>Burn Bin</span></button>
+      <button type="button" class="ico" data-open="bookWin"><img src="/img/i-book.png" alt=""><span>Addresses</span></button>
+      <button type="button" class="ico" data-open="cmdWin"><img src="/img/i-cmd.png" alt=""><span>Command</span></button>
+      <button type="button" class="ico" data-open="histWin"><img src="/img/i-hist.png" alt=""><span>History.txt</span></button>
+      <button type="button" class="ico" data-open="readmeWin"><img src="/img/i-note.png" alt=""><span>readme.txt</span></button>
+      <button type="button" class="ico" data-open="helpWin"><img src="/img/i-help.png" alt=""><span>Poker Help</span></button>
+      <button type="button" class="ico" data-open="optWin"><img src="/img/i-opt.png" alt=""><span>Options</span></button>
     </div>
     <!-- CMainFrameBase -->
     <div class="win dsk" id="mainWin" data-icon="coin" data-title="Bitcoin">
       <div class="tb"><span class="ti"><img src="/img/i-coin-16.png" alt="">Bitcoin</span><span class="tbtns"><button type="button" data-w="min" aria-label="Minimize">_</button><button type="button" aria-label="Maximize">□</button><button type="button" class="x" data-w="close" aria-label="Close">✕</button></span></div>
-      <div class="menubar"><span><u>F</u>ile</span><span id="mfOptions"><u>O</u>ptions</span><span><u>H</u>elp</span></div>
+      <div class="menubar"><span data-open="monWin"><u>F</u>ile</span><span data-open="optWin"><u>O</u>ptions</span><span data-open="aboutWin"><u>H</u>elp</span></div>
       <div class="mf-tool"><button type="button" id="mfSend"><img class="ico" src="/img/i-coin.png" alt=""><span><u>S</u>end Coins</span></button><button type="button" id="mfBook"><img class="ico" src="/img/i-note.png" alt=""><span><u>A</u>ddress Book</span></button></div>
       <div class="mf-addr">Your Bitcoin Address: <input class="xp-input" id="mfAddr" readonly value="(play money · not a real address)"><button class="xp-btn" type="button" id="mfCopy"><u>C</u>opy to Clipboard</button><button class="xp-btn" type="button" disabled>C<u>h</u>ange...</button></div>
       <div class="mf-bal">Balance: <b id="mfBal">50.00</b><span class="sp"></span><label class="xp-check"><input type="checkbox" id="mfGen"><i></i><u>G</u>enerate Coins</label><select class="xp-input" aria-label="Filter"><option> All</option><option> Sent</option><option> Received</option><option> In Progress</option></select></div>
@@ -104,7 +101,7 @@
         <table class="gc-tbl"><tr><td>$HODLEM price</td><td id="wPrice">—</td></tr><tr><td>Market cap</td><td id="wMcap">—</td></tr><tr><td>Burned forever</td><td id="wBurn">—</td></tr><tr><td>Fees waiting to burn</td><td id="wFees">—</td></tr></table>
         <div class="gc-count"><span>Hands dealt worldwide:</span><span class="digits" id="wHands">-------</span></div>
         <div class="gc-btns"><a class="b88" id="wBuy" href="#token">BUY<small>$HODLEM</small></a><a class="b88 b2" href="#proof">THE<small>PROOF</small></a><a class="b88 b3" href="#burn">BURN<small>IT</small></a><a class="b88 b4" href="#x">ON<small>X</small></a></div>
-        <ul class="gc-links"><li><a href="#proof">The poker table in Bitcoin's first code</a></li><li><a href="#tables">Five epochs, five tables</a></li><li><a href="#faq">Frequently asked questions</a></li></ul>
+        <ul class="gc-links"><li><a href="#proof">The poker table in Bitcoin's first code</a></li><li><a href="#" data-open="monWin">$HODLEM Monitor (live)</a></li><li><a href="#" data-open="calcWin">Burn Calculator</a></li><li><a href="#" data-open="helpWin">How to play &amp; hand rankings</a></li><li><a href="#tables">Five epochs, five tables</a></li><li><a href="#faq">Frequently asked questions</a></li></ul>
         <div class="gc-foot">Best viewed at 800 x 600 · Updated <span id="wDate"></span></div>
       </div>
       <div class="statusbar"><span class="grow" id="wbStatus">Done</span><span style="width:110px">Internet</span></div>
@@ -158,11 +155,120 @@ or Satoshi Nakamoto.</textarea>
       </div>
       <div class="statusbar"><span class="grow" id="binStatus">—</span></div>
     </div>
+
+    <!-- $HODLEM Monitor: live market readouts + a session graph -->
+    <div class="win dsk" id="monWin" data-icon="mon" data-title="$HODLEM Monitor" hidden>
+      <div class="tb"><span class="ti"><img src="/img/i-mon-16.png" alt="">$HODLEM Monitor</span><span class="tbtns"><button type="button" data-w="min" aria-label="Minimize">_</button><button type="button" aria-label="Maximize">□</button><button type="button" class="x" data-w="close" aria-label="Close">✕</button></span></div>
+      <div class="menubar"><span><u>F</u>ile</span><span><u>O</u>ptions</span><span><u>V</u>iew</span><span><u>H</u>elp</span></div>
+      <div class="mon-tabs"><span class="on" data-mt="mcap">Market cap</span><span data-mt="price">Price</span><span data-mt="burn">Burned</span></div>
+      <div class="mon-body">
+        <div class="mon-graph"><canvas id="monCv" width="480" height="150" aria-label="Session graph"></canvas><span class="mon-cap" id="monCap">Waiting for $HODLEM…</span></div>
+        <div class="mon-grid">
+          <fieldset><legend>Market</legend><dl><dt>Price</dt><dd id="mPrice">—</dd><dt>Market cap</dt><dd id="mMcap">—</dd><dt>24h volume</dt><dd id="mVol">—</dd><dt>24h change</dt><dd id="mChg">—</dd><dt>1h change</dt><dd id="mChg1">—</dd></dl></fieldset>
+          <fieldset><legend>Chain</legend><dl><dt>Trades 24h</dt><dd id="mTx">—</dd><dt>Liquidity</dt><dd id="mLiq">—</dd><dt>Curve sold</dt><dd id="mCurve">—</dd><dt>Burned</dt><dd id="mBurn">—</dd><dt>Fees waiting</dt><dd id="mFees">—</dd></dl></fieldset>
+        </div>
+      </div>
+      <div class="statusbar"><span class="grow" id="monS0">Not launched</span><span id="monS1" style="width:120px">Samples: 0</span><span id="monS2" style="width:90px">--:--</span></div>
+    </div>
+    <!-- Burn Calculator -->
+    <div class="win dsk" id="calcWin" data-icon="calc" data-title="Burn Calculator" hidden>
+      <div class="tb"><span class="ti"><img src="/img/i-calc-16.png" alt="">Burn Calculator</span><span class="tbtns"><button type="button" data-w="min" aria-label="Minimize">_</button><button type="button" aria-label="Maximize">□</button><button type="button" class="x" data-w="close" aria-label="Close">✕</button></span></div>
+      <div class="menubar"><span><u>E</u>dit</span><span><u>V</u>iew</span><span><u>H</u>elp</span></div>
+      <div class="calc">
+        <div class="calc-lcd sunken"><small>SOL of creator fees</small><b id="cIn">0</b></div>
+        <div class="calc-out"><div><span>Buys about</span><b id="cTok">—</b></div><div><span>Of the supply</span><b id="cPct">—</b></div><div><span>Worth about</span><b id="cUsd">—</b></div></div>
+        <div class="calc-keys" id="calcKeys">
+          <button type="button" data-k="7">7</button><button type="button" data-k="8">8</button><button type="button" data-k="9">9</button><button type="button" class="r" data-k="C">C</button>
+          <button type="button" data-k="4">4</button><button type="button" data-k="5">5</button><button type="button" data-k="6">6</button><button type="button" data-k="back">←</button>
+          <button type="button" data-k="1">1</button><button type="button" data-k="2">2</button><button type="button" data-k="3">3</button><button type="button" data-k=".">.</button>
+          <button type="button" data-k="0">0</button><button type="button" data-k="00">00</button><button type="button" class="w" data-k="fees">FEES NOW</button>
+        </div>
+        <p class="calc-note" id="cNote">Live price after launch. Estimate before trading fees and slippage.</p>
+      </div>
+    </div>
+    <!-- Address Book (the toolbar button from Bitcoin v0.1, now with the real addresses) -->
+    <div class="win dsk" id="bookWin" data-icon="book" data-title="Address Book" hidden>
+      <div class="tb"><span class="ti"><img src="/img/i-book-16.png" alt="">Address Book</span><span class="tbtns"><button type="button" data-w="min" aria-label="Minimize">_</button><button type="button" aria-label="Maximize">□</button><button type="button" class="x" data-w="close" aria-label="Close">✕</button></span></div>
+      <div class="bk-tabs"><span class="on">Addresses</span></div>
+      <div class="bk-list sunken"><table class="xp-list"><thead><tr><th style="width:190px">Name</th><th>Address</th></tr></thead><tbody id="bkRows"></tbody></table></div>
+      <div class="bk-bt"><button class="xp-btn" type="button" id="bkCopy"><u>C</u>opy Address</button><button class="xp-btn" type="button" id="bkView"><u>V</u>iew</button><span class="sp"></span><button class="xp-btn" type="button" data-w="close">OK</button></div>
+    </div>
+    <!-- Poker Help -->
+    <div class="win dsk" id="helpWin" data-icon="help" data-title="Poker Help" hidden>
+      <div class="tb"><span class="ti"><img src="/img/i-help-16.png" alt="">Poker Help</span><span class="tbtns"><button type="button" data-w="min" aria-label="Minimize">_</button><button type="button" aria-label="Maximize">□</button><button type="button" class="x" data-w="close" aria-label="Close">✕</button></span></div>
+      <div class="hp-tool"><button type="button" data-hp="rank">Hand Rankings</button><button type="button" data-hp="play">How to Play</button><button type="button" data-hp="keys">Keys</button><button type="button" data-hp="tables">The Tables</button><button type="button" data-hp="money">Play Money</button></div>
+      <div class="hp-body">
+        <div class="hp-tree sunken" id="hpTree"></div>
+        <div class="hp-page sunken" id="hpPage"></div>
+      </div>
+    </div>
+    <!-- Options -->
+    <div class="win dsk" id="optWin" data-icon="opt" data-title="Options" hidden>
+      <div class="tb"><span class="ti"><img src="/img/i-opt-16.png" alt="">Options</span><span class="tbtns"><button type="button" data-w="min" aria-label="Minimize">_</button><button type="button" aria-label="Maximize">□</button><button type="button" class="x" data-w="close" aria-label="Close">✕</button></span></div>
+      <div class="opt-tabs"><span class="on">Table</span></div>
+      <div class="opt-body">
+        <fieldset><legend>Dealing</legend>
+          <label class="xp-check"><input type="checkbox" data-pref="autoDeal"><i></i>Deal the next hand automatically</label>
+          <label class="xp-check"><input type="checkbox" data-pref="fast"><i></i>Fast dealing</label>
+          <label class="xp-check"><input type="checkbox" id="optSnd"><i></i>Sound effects</label>
+        </fieldset>
+        <fieldset><legend>Display</legend>
+          <label class="xp-check"><input type="checkbox" data-pref="odds"><i></i>Show my odds (win % against a random hand)</label>
+          <label class="xp-check"><input type="checkbox" data-pref="fourColor"><i></i>Four-colour deck</label>
+          <div class="opt-row"><span>Card back</span><select class="xp-input" data-pref="back"><option value="orange">Orange ₿</option><option value="blue">Blue</option><option value="red">Red</option><option value="black">Black</option></select></div>
+          <div class="opt-row"><span>Table felt</span><select class="xp-input" data-pref="felt"><option value="green">Green</option><option value="blue">Blue</option><option value="red">Red</option><option value="black">Black</option></select></div>
+        </fieldset>
+        <fieldset><legend>Bankroll</legend>
+          <div class="opt-row"><span>Stacks, stats and history live in this browser only.</span></div>
+          <div class="opt-row"><button class="xp-btn" type="button" id="optReset">Reset everything…</button></div>
+        </fieldset>
+      </div>
+      <div class="opt-bt"><button class="xp-btn" type="button" data-w="close">OK</button><button class="xp-btn" type="button" data-w="close">Cancel</button></div>
+    </div>
+    <!-- About -->
+    <div class="win dsk" id="aboutWin" data-icon="about" data-title="About HODLEM" hidden>
+      <div class="tb"><span class="ti"><img src="/img/i-about-16.png" alt="">About HODLEM</span><span class="tbtns"><button type="button" data-w="min" aria-label="Minimize">_</button><button type="button" aria-label="Maximize">□</button><button type="button" class="x" data-w="close" aria-label="Close">✕</button></span></div>
+      <div class="ab-in">
+        <div class="ab-logo"><img class="s" src="/img/sprite.png" alt=""><img class="w" src="/img/wordmark.png" alt="HODLEM"></div>
+        <p><b>HODLEM</b> version 0.1.2009 (Beta)</p>
+        <p>The Poker Lobby and Poker windows from Bitcoin v0.1, finished: heads-up Texas Hold'em against a bot, five tables, one for each epoch.</p>
+        <p>Bitcoin v0.1 source © 2009 Satoshi Nakamoto, MIT/X11 license. The windows here are recreated from it.</p>
+        <p>Chips are play money. Not gambling. Not affiliated with Bitcoin, its developers or Satoshi Nakamoto.</p>
+        <p>$HODLEM: 100% of creator fees buy back and burn the token.</p>
+      </div>
+      <div class="opt-bt"><button class="xp-btn" type="button" data-w="close">OK</button></div>
+    </div>
   </div>
   <div class="taskbar" id="taskbar" aria-label="Taskbar">
+    <button class="start" id="startBtn" type="button" aria-haspopup="true" aria-expanded="false"><img src="/img/i-poker-16.png" alt="">start</button>
     <span class="tb-list" id="tbList"></span>
     <span class="sp"></span>
-    <span class="tray"><span id="trayHands">0 hands</span><span id="trayClock">--:--</span></span>
+    <span class="tray"><button type="button" class="tray-ca" id="caPill" hidden title="Copy the contract address">CA <code id="caShort"></code></button><span id="trayHands">0 hands</span><span id="trayClock">--:--</span></span>
+    <div class="startmenu" id="startMenu" hidden>
+      <div class="sm-head"><img src="/img/i-poker.png" alt=""><b>Player 1</b><small>Seat 1 · play money</small></div>
+      <div class="sm-cols">
+        <div class="sm-l">
+          <button type="button" data-open="pokerWin"><img src="/img/i-poker.png" alt=""><span><b>Poker</b><small>Deal a hand</small></span></button>
+          <button type="button" data-open="lobbyWin"><img src="/img/i-lobby.png" alt=""><span><b>Poker Lobby</b><small>Five tables</small></span></button>
+          <button type="button" data-open="mainWin"><img src="/img/i-coin.png" alt=""><span><b>Bitcoin</b><small>Your play balance</small></span></button>
+          <button type="button" data-open="webWin"><img src="/img/i-web.png" alt=""><span><b>Web Browser</b><small>hodlem.htm</small></span></button>
+          <button type="button" data-open="cmdWin"><img src="/img/i-cmd.png" alt=""><span><b>Command Prompt</b><small>Type HELP</small></span></button>
+          <button type="button" data-open="histWin"><img src="/img/i-hist.png" alt=""><span><b>Hand History</b><small>Every action, this session</small></span></button>
+        </div>
+        <div class="sm-r">
+          <button type="button" data-open="monWin"><img src="/img/i-mon-16.png" alt="">$HODLEM Monitor</button>
+          <button type="button" data-open="calcWin"><img src="/img/i-calc-16.png" alt="">Burn Calculator</button>
+          <button type="button" data-open="binWin"><img src="/img/i-bin-16.png" alt="">Burn Bin</button>
+          <button type="button" data-open="bookWin"><img src="/img/i-book-16.png" alt="">Address Book</button>
+          <hr>
+          <button type="button" data-open="helpWin"><img src="/img/i-help-16.png" alt="">Poker Help</button>
+          <button type="button" data-open="optWin"><img src="/img/i-opt-16.png" alt="">Options</button>
+          <button type="button" data-open="readmeWin"><img src="/img/i-note-16.png" alt="">readme.txt</button>
+          <button type="button" data-open="aboutWin"><img src="/img/i-about-16.png" alt="">About HODLEM</button>
+        </div>
+      </div>
+      <div class="sm-foot"><button type="button" id="smShow">Show Desktop</button><button type="button" id="smOff"><i>⏻</i>Turn Off</button></div>
+    </div>
   </div>
 </section>
 
@@ -363,6 +469,17 @@ Play without leaving the timeline 👇</p>
   </div>
 </section>
 
+<section class="sec" id="status">
+  <div class="wrap">
+    <div class="sec-h"><div class="k">STATUS</div><h2>What works today.</h2><p>Checked live by this page each time it loads. Only what is running, no roadmap promises.</p></div>
+    <div class="win sw st-win">
+      <div class="tb"><span class="ti"><img src="/img/i-mon-16.png" alt="">System Status</span><span class="tbtns"><button type="button" class="x" aria-label="Close">✕</button></span></div>
+      <div class="sunken st-list"><table class="xp-list"><thead><tr><th style="width:230px">Part</th><th style="width:120px">Status</th><th>Detail</th></tr></thead><tbody id="stRows"></tbody></table></div>
+      <div class="statusbar"><span class="grow" id="stS0">Checking…</span></div>
+    </div>
+  </div>
+</section>
+
 <section class="sec" id="faq">
   <div class="wrap">
     <div class="sec-h"><div class="k">FAQ</div><h2>Questions.</h2></div>
@@ -373,6 +490,9 @@ Play without leaving the timeline 👇</p>
       <details><summary>What happens to the creator fees?</summary><p id="faqFees">All $HODLEM creator fees are used to buy $HODLEM and burn it. The Burn window above does it in one transaction the creator wallet signs, and the Burns list reads every burn from the chain. Anyone can also buy and burn with their own SOL.</p></details>
       <details><summary>How is "burned" counted?</summary><p>Every pump.fun coin starts with 1,000,000,000 tokens. Burned is that minus today's on-chain supply, so it counts every burn by anyone, not just ours.</p></details>
       <details><summary>Who is the bot?</summary><p>At the Genesis table it sits as 1A1zP1…DivfNa, the address that got Bitcoin's first 50 coins. Later tables are named after the halving blocks. It plays real poker math: Monte Carlo equity, pot odds, a few bluffs.</p></details>
+      <details><summary>How do new tables unlock?</summary><p>Each table is open while $HODLEM's market cap is at or above its level: First Halving at $50K, Second Halving at $150K, Third Halving at $500K and Fourth Halving at $1M. Genesis is always open. The lobby reads the live market cap.</p></details>
+      <details><summary>Can I check a burn myself?</summary><p>Yes. Every burn transaction buys $HODLEM and then burns exactly that amount, with the memo "hodlem:burn". Each row in the Burns list and the Burn Bin links to Solscan, and the total burned is read from the token's on-chain supply.</p></details>
+      <details><summary>Where is my progress saved?</summary><p>In your browser only: stacks, stats, hand history and options. Your game is never uploaded; a finished hand only adds an anonymous +1 to the worldwide counter. Reset everything any time in Options.</p></details>
       <details><summary>Is this affiliated with Bitcoin or Satoshi?</summary><p>No. HODLEM is a fan project and a memecoin. The Bitcoin v0.1 code is © 2009 Satoshi Nakamoto under the MIT license; the windows here are recreated from it.</p></details>
     </div>
   </div>
@@ -388,8 +508,8 @@ Play without leaving the timeline 👇</p>
 <div class="modal" id="wModal" hidden><div class="xp-msgbox"><div class="tb"><span class="ti">Connect a wallet</span></div><div class="bw-in" id="wList"></div><div class="mb-bt"><button class="xp-btn" type="button" id="wClose">Cancel</button></div></div></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<script src="/js/poker.js?v=3" defer></script>
-<script src="/js/table.js?v=3" defer></script>
-<script src="/js/site.js?v=3" defer></script>
+<script src="/js/poker.js?v=4" defer></script>
+<script src="/js/table.js?v=4" defer></script>
+<script src="/js/site.js?v=4" defer></script>
 </body>
 </html>
