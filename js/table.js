@@ -23,6 +23,12 @@
   const data = Object.assign({ stacks: {}, stats: { hands: 0, won: 0, lost: 0, biggest: 0, best: 0, busts: 0, botBusts: 0, showdowns: 0 }, history: [], snd: true }, store.load());
   data.stats = Object.assign({ hands: 0, won: 0, lost: 0, biggest: 0, best: 0, busts: 0, botBusts: 0, showdowns: 0 }, data.stats || {});
   const persist = () => store.save(data);
+  // table options (the Options window): deck colours, card back, felt, odds, speed, auto-deal
+  const PREF_DEF = { fourColor: false, back: 'orange', felt: 'green', odds: false, fast: false, autoDeal: true };
+  const PREF = data.prefs = Object.assign({}, PREF_DEF, data.prefs || {});
+  const BACKS = { orange: ['#c8700a', '#fff5e4'], blue: ['#1f4aa8', '#e6eeff'], red: ['#a3161b', '#ffe9e9'], black: ['#1d1d1d', '#f7931a'] };
+  const FELTS = { green: ['#2f9a52', '#1d7a3c', '#125a2a', '#0e3220'], blue: ['#2f6fb0', '#1d4f8a', '#123a6a', '#0b1f35'], red: ['#a8343a', '#83222a', '#5e1419', '#2a0b0d'], black: ['#3a3a3a', '#262626', '#161616', '#0a0a0a'] };
+  const SUIT4 = ['#111', '#c4141b', '#1f4fd1', '#16812f'];
 
   /* ---------- sound (tiny square-wave bleeps, off until a click) ---------- */
   let actx = null;
@@ -62,16 +68,17 @@
     rr(x, X, Y, w, h, Math.max(3, w * 0.07)); x.fillStyle = up ? '#fdfdfb' : '#f6f1e6'; x.fill();
     x.shadowColor = 'transparent'; x.lineWidth = 1; x.strokeStyle = '#222'; x.stroke();
     if (!up) {
-      rr(x, X + w * 0.08, Y + w * 0.08, w * 0.84, h - w * 0.16, 3); x.fillStyle = '#c8700a'; x.fill(); x.save(); x.clip();
+      const BK = BACKS[PREF.back] || BACKS.orange;
+      rr(x, X + w * 0.08, Y + w * 0.08, w * 0.84, h - w * 0.16, 3); x.fillStyle = BK[0]; x.fill(); x.save(); x.clip();
       x.strokeStyle = 'rgba(255,236,200,.38)'; x.lineWidth = 1;
       for (let i = -h; i < w + h; i += 6) { x.beginPath(); x.moveTo(X + i, Y); x.lineTo(X + i + h, Y + h); x.stroke(); x.beginPath(); x.moveTo(X + i, Y); x.lineTo(X + i - h, Y + h); x.stroke(); }
       x.restore();
-      x.fillStyle = '#fff5e4'; x.beginPath(); x.arc(X + w / 2, Y + h / 2, w * 0.2, 0, 7); x.fill();
-      x.fillStyle = '#c8700a'; x.font = '900 ' + Math.round(w * 0.26) + 'px Tahoma, Verdana, sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle';
+      x.fillStyle = BK[1]; x.beginPath(); x.arc(X + w / 2, Y + h / 2, w * 0.2, 0, 7); x.fill();
+      x.fillStyle = BK[0]; x.font = '900 ' + Math.round(w * 0.26) + 'px Tahoma, Verdana, sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle';
       x.fillText('₿', X + w / 2, Y + h / 2 + 1);
       x.restore(); return;
     }
-    const r = c % 13, s = (c / 13) | 0, col = (s === 1 || s === 2) ? RED : INK, R0 = '23456789TJQKA'[r], rk = R0 === 'T' ? '10' : R0;
+    const r = c % 13, s = (c / 13) | 0, col = PREF.fourColor ? SUIT4[s] : (s === 1 || s === 2) ? RED : INK, R0 = '23456789TJQKA'[r], rk = R0 === 'T' ? '10' : R0;
     x.fillStyle = col; x.textAlign = 'center'; x.textBaseline = 'alphabetic';
     const fs = Math.round(w * 0.26);
     const corner = () => { x.font = 'bold ' + fs + 'px "Times New Roman", Times, serif'; x.fillText(rk, X + w * 0.15, Y + fs * 0.95); x.font = Math.round(fs * 0.85) + 'px "Segoe UI Symbol", "DejaVu Sans", sans-serif'; x.fillText(SUIT[s], X + w * 0.15, Y + fs * 1.8); };
@@ -87,7 +94,7 @@
     } else {
       // our own court cards: a framed panel, the rank and a little crown
       x.strokeStyle = col; x.lineWidth = 1.2; x.strokeRect(bx, by + 2, bw, bh - 4);
-      x.fillStyle = s === 1 || s === 2 ? 'rgba(196,20,27,.08)' : 'rgba(17,17,17,.06)'; x.fillRect(bx, by + 2, bw, bh - 4);
+      x.fillStyle = col === INK ? 'rgba(17,17,17,.06)' : col + '14'; x.fillRect(bx, by + 2, bw, bh - 4);
       x.fillStyle = '#d9a21b'; const cx = X + w / 2, cy = Y + h * 0.33, cw = w * 0.3;
       x.beginPath(); x.moveTo(cx - cw / 2, cy + cw * 0.3); x.lineTo(cx - cw / 2, cy - cw * 0.15); x.lineTo(cx - cw / 4, cy + cw * 0.05); x.lineTo(cx, cy - cw * 0.3); x.lineTo(cx + cw / 4, cy + cw * 0.05); x.lineTo(cx + cw / 2, cy - cw * 0.15); x.lineTo(cx + cw / 2, cy + cw * 0.3); x.closePath(); x.fill();
       x.fillStyle = col; x.font = 'bold ' + Math.round(w * 0.42) + 'px "Times New Roman", Times, serif'; x.textBaseline = 'middle'; x.fillText(rk, cx, Y + h * 0.6);
@@ -148,11 +155,12 @@
     const $ = s => root.querySelector(s);
     const btn = a => root.querySelector(`[data-a="${a}"]`);
     const amtIn = $('[data-k="amt"]'), logIn = $('[data-k="log"]'), sitOut = $('[data-k="sitout"]'), msg = $('.pw-msg');
+    let oddsKey = '', oddsVal = 0;
     let T = null, timers = [], disp = null, fx = [], raf = 0, uiBets = [0, 0], banner = null, think = false, lastTurnSeat = -1;
 
     const fmt = v => P.fmtAmt(v, DIV);
     const clearTimers = () => { timers.forEach(clearTimeout); timers = []; };
-    const later = (fn, ms) => { const id = setTimeout(fn, ms); timers.push(id); return id; };
+    const later = (fn, ms) => { const id = setTimeout(fn, PREF.fast ? ms * 0.45 : ms); timers.push(id); return id; };
 
     function newTable(ep) {
       clearTimers(); fx = []; banner = null;
@@ -208,7 +216,7 @@
       // the bot is broke: a new block is mined
       if (T.seats[1].stack <= 0) { st.botBusts++; persist(); later(() => { T.seats[1].stack = epoch.stack; say(T.seats[1].name + ' is out of coins. A new block was mined: ' + fmt(epoch.stack) + ' generated.'); render(); }, 1400); }
       if (T.seats[0].stack <= 0) later(() => onBust(0), 1600);
-      else if (!sitOut.checked) later(deal, 3000);
+      else if (!sitOut.checked && PREF.autoDeal) later(deal, 3000);
     }
     function onBust(seat) {
       if (seat !== 0) return;
@@ -343,14 +351,15 @@
       fit();
       const x = ctx, now = performance.now();
       // room
-      const bg = x.createRadialGradient(CX, CY, 60, CX, CY, 520); bg.addColorStop(0, '#0e3220'); bg.addColorStop(1, '#030b07'); x.fillStyle = bg; x.fillRect(0, 0, W, H);
+      const FC = FELTS[PREF.felt] || FELTS.green;
+      const bg = x.createRadialGradient(CX, CY, 60, CX, CY, 520); bg.addColorStop(0, FC[3]); bg.addColorStop(1, '#030b07'); x.fillStyle = bg; x.fillRect(0, 0, W, H);
       // rail
       x.save(); x.shadowColor = 'rgba(0,0,0,.6)'; x.shadowBlur = 24; x.shadowOffsetY = 8;
       x.fillStyle = '#3a2412'; x.beginPath(); x.ellipse(CX, CY, RX + 24, RY + 24, 0, 0, 7); x.fill(); x.restore();
       const rail = x.createLinearGradient(0, CY - RY - 24, 0, CY + RY + 24); rail.addColorStop(0, '#7a4b22'); rail.addColorStop(0.5, '#4a2c12'); rail.addColorStop(1, '#2b180a');
       x.fillStyle = rail; x.beginPath(); x.ellipse(CX, CY, RX + 22, RY + 22, 0, 0, 7); x.fill();
       x.fillStyle = '#1a120c'; x.beginPath(); x.ellipse(CX, CY, RX + 6, RY + 6, 0, 0, 7); x.fill();
-      const felt = x.createRadialGradient(CX, CY - 30, 30, CX, CY, RX); felt.addColorStop(0, '#2f9a52'); felt.addColorStop(0.65, '#1d7a3c'); felt.addColorStop(1, '#125a2a');
+      const felt = x.createRadialGradient(CX, CY - 30, 30, CX, CY, RX); felt.addColorStop(0, FC[0]); felt.addColorStop(0.65, FC[1]); felt.addColorStop(1, FC[2]);
       x.fillStyle = felt; x.beginPath(); x.ellipse(CX, CY, RX, RY, 0, 0, 7); x.fill();
       x.strokeStyle = 'rgba(255,255,255,.12)'; x.lineWidth = 1.5; x.beginPath(); x.ellipse(CX, CY, RX - 34, RY - 30, 0, 0, 7); x.stroke();
       // felt print
@@ -407,6 +416,13 @@
         x.strokeStyle = banner.good ? '#ffd24a' : 'rgba(255,255,255,.4)'; x.lineWidth = 1.5; rr(x, CX - tw / 2, CY + 30, tw, 24, 6); x.stroke();
         x.fillStyle = banner.good ? '#ffd24a' : '#fff'; x.fillText(txt, CX, CY + 43); x.globalAlpha = 1;
       }
+      // your odds (Options > Show my odds): Monte Carlo vs one random hand, recomputed per street
+      if (PREF.odds && T.handNo > 0 && disp.hole[0] >= 2 && T.state !== 'done' && T.folded < 0) {
+        const shown = T.board.slice(0, disp.board), key = T.handNo + ':' + T.hole[0].join(',') + ':' + shown.join(',');
+        if (oddsKey !== key) { oddsKey = key; oddsVal = P.equity(T.hole[0], shown, 1200); }
+        const p = seatXY(0); x.fillStyle = 'rgba(0,0,0,.55)'; rr(x, p.x - 58, p.y + 25, 116, 17, 4); x.fill();
+        x.fillStyle = oddsVal >= 0.5 ? '#7f7' : '#ffd24a'; x.font = 'bold 11px Tahoma, Verdana, sans-serif'; x.fillText('Win ' + Math.round(oddsVal * 100) + '% vs random', p.x, p.y + 34);
+      }
       if (T.handNo === 0) { x.fillStyle = 'rgba(255,255,255,.85)'; x.font = 'bold 14px Tahoma, Verdana, sans-serif'; x.fillText('Press Deal Hand', CX, CY); x.font = '11px Tahoma, Verdana, sans-serif'; x.fillStyle = 'rgba(255,255,255,.6)'; x.fillText('The first hand ever dealt at Satoshi’s table', CX, CY + 20); }
     }
     // animation clock: deal cards one by one, then idle at low cost
@@ -416,7 +432,7 @@
       if (!T) return;
       let need = false;
       if (T.handNo > 0 && T.hole[0].length) {
-        if (now - lastDeal > 150) {
+        if (now - lastDeal > (PREF.fast ? 70 : 150)) {
           const order = [[T.button ^ 1, 0], [T.button, 0], [T.button ^ 1, 1], [T.button, 1]];
           for (const [s] of order) { if (disp.hole[s] < T.hole[s].length && disp.hole[s] <= Math.min(disp.hole[0], disp.hole[1])) { disp.hole[s]++; lastDeal = now; SFX.deal(); need = true; break; } }
           if (!need && disp.board < T.board.length && disp.hole[0] >= 2 && disp.hole[1] >= 2) { disp.board++; lastDeal = now; SFX.deal(); need = true; }
@@ -433,6 +449,8 @@
       get table() { return T; }, EPOCHS, data,
       setEpoch(id) { const ep = EPOCHS.find(e => e.id === id); if (ep) { if (T) { data.stacks[epoch.id] = T.seats[0].stack; persist(); } newTable(ep); } },
       deal, epoch: () => epoch, status, sound(on) { data.snd = on; persist(); }, get snd() { return data.snd; },
+      get prefs() { return Object.assign({}, PREF); },
+      setPref(k, v) { if (!(k in PREF_DEF)) return; PREF[k] = v; persist(); if (k === 'autoDeal' && v && T && T.canDeal() && T.handNo > 0 && !sitOut.checked) later(deal, 600); render(); },
       reload() { T.seats[0].stack = epoch.stack; data.stacks[epoch.id] = epoch.stack; persist(); emitState(); render(); sync(); },
       redraw: render,
     };

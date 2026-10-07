@@ -42,6 +42,8 @@
     if (id === 'pokerWin' && game) game.redraw();
     if (id === 'cmdWin' && big()) setTimeout(() => $('#cmdIn').focus({ preventScroll: true }), 30);
     if (id === 'histWin') { const ta = $('#histTa'); ta.scrollTop = ta.scrollHeight; }
+    if (id === 'monWin') setTimeout(drawMon, 0);
+    if (id === 'optWin') syncOpts();
     if (!big() && !quiet) w.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
   function minWin(w) { w.hidden = true; wstate[w.id] = 'min'; w.classList.remove('active'); renderTaskbar(); }
@@ -77,18 +79,18 @@
     onLeave: () => { minWin($('#pokerWin')); openWin('lobbyWin'); toast('You left the table. Pick one in the Poker Lobby.'); },
     onLog: line => { histAdd(line); cmdLog(line); },
   });
-  const snd = $('#sndBtn'); const sndTxt = () => { snd.textContent = game.snd ? 'SND ON' : 'SND OFF'; }; sndTxt();
+  const snd = $('#sndBtn'); const sndTxt = () => { snd.textContent = game.snd ? 'SND ON' : 'SND OFF'; const o = $('#optSnd'); if (o) o.checked = !!game.snd; }; sndTxt();
   snd.addEventListener('click', () => { game.sound(!game.snd); sndTxt(); });
   // press any key to deal (outside of inputs), first time
   let pressed = false;
   const press = e => {
     if (pressed || booting) return; const tag = (e.target && e.target.tagName) || ''; if (['INPUT', 'TEXTAREA', 'SELECT', 'BUTTON', 'A'].includes(tag)) return;
     if (e.type === 'keydown' && (e.ctrlKey || e.metaKey || e.key === 'Tab')) return;
-    pressed = true; $('#press').textContent = 'DEALING…'; $('#press').classList.remove('blink');
+    if (e.target && e.target.closest && e.target.closest('.win:not(#pokerWin), .startmenu, .top')) return;
+    pressed = true;
     openWin('pokerWin', true); if (game.table && game.table.canDeal()) game.deal();
   };
   window.addEventListener('keydown', press, { once: false });
-  $('#press').addEventListener('click', press);
   // Generate Coins (main window) = mine a fresh stack when you're out
   $('#mfGen').addEventListener('change', e => {
     $('#mfS1').textContent = e.target.checked ? '    Generating' : '';
@@ -96,7 +98,7 @@
   });
   $('#mfCopy').addEventListener('click', () => toast('It is play money. There is nothing to copy.'));
   $('#mfSend').addEventListener('click', () => toast('Send Coins is disabled: chips here are play money.'));
-  $('#mfBook').addEventListener('click', () => toast('Address Book: 1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa (Genesis)'));
+  $('#mfBook').addEventListener('click', () => openWin('bookWin'));
 
   function renderTx(hist) {
     const rows = (hist || []).slice(0, 30).map(h => {
@@ -115,7 +117,7 @@
     $('#trayHands').textContent = st.hands + ' hands';
   }
   async function postHand() { try { const j = await api('hands', {}); if (j.count != null) { S.global = j.count; $('#sGlobal').textContent = j.count.toLocaleString('en-US'); webHands(j.count); } } catch (e) { } }
-  async function getHands() { try { const r = await fetch('/api/hands'); const j = await r.json(); if (j.count != null) { S.global = j.count; $('#sGlobal').textContent = j.count.toLocaleString('en-US'); webHands(j.count); } else { $('#sGlobal').textContent = 'offline'; webHands(null); } } catch (e) { $('#sGlobal').textContent = 'offline'; webHands(null); } }
+  async function getHands() { try { const r = await fetch('/api/hands'); const j = await r.json(); if (j.count != null) { S.global = j.count; $('#sGlobal').textContent = j.count.toLocaleString('en-US'); webHands(j.count); } else { $('#sGlobal').textContent = 'offline'; webHands(null); } renderStatus(); } catch (e) { $('#sGlobal').textContent = 'offline'; webHands(null); } }
 
   /* ---------- lobby + epochs ---------- */
   function renderLobby() {
@@ -158,7 +160,7 @@
       if (xh) $('#xHandle').textContent = '@' + xh.split('/').pop();
       if (S.cfg.ca) {
         $('#caPill').hidden = false; $('#caShort').textContent = short(S.cfg.ca);
-        $('#caCopy').onclick = () => navigator.clipboard && navigator.clipboard.writeText(S.cfg.ca).then(() => toast('Contract address copied'));
+        $('#caPill').onclick = () => navigator.clipboard && navigator.clipboard.writeText(S.cfg.ca).then(() => toast('Contract address copied'));
         $('#buyTop').href = 'https://pump.fun/coin/' + S.cfg.ca; $('#buyTop').target = '_blank'; $('#buyTop').rel = 'noopener';
         $('#tokLinks').innerHTML = `<a class="pbtn orange" href="https://pump.fun/coin/${esc(S.cfg.ca)}" target="_blank" rel="noopener">BUY ON PUMP.FUN</a><a class="pbtn ghost" href="https://dexscreener.com/solana/${esc(S.cfg.ca)}" target="_blank" rel="noopener">CHART</a><a class="pbtn ghost" href="https://solscan.io/token/${esc(S.cfg.ca)}" target="_blank" rel="noopener">SOLSCAN</a>${xh ? `<a class="pbtn ghost" href="${esc(xh)}" target="_blank" rel="noopener">X</a>` : ''}<button class="pbtn ghost" type="button" id="caCopy2">COPY CA</button>`;
         $('#caCopy2').onclick = () => navigator.clipboard && navigator.clipboard.writeText(S.cfg.ca).then(() => toast('Contract address copied'));
@@ -170,6 +172,7 @@
       }
       $('#footLinks').innerHTML = (xh ? `<a href="${esc(xh)}" target="_blank" rel="noopener">X</a>` : '') + (S.cfg.ca ? `<a href="https://dexscreener.com/solana/${esc(S.cfg.ca)}" target="_blank" rel="noopener">CHART</a>` : '') + '<a href="#proof">PROOF</a><a href="#burn">BURN</a><a href="#faq">FAQ</a>';
     } catch (e) { S.cfg = {}; }
+    renderBook(); renderStatus();
   }
   async function loadToken() {
     if (!S.cfg.ca) return;
@@ -190,7 +193,8 @@
       S.mcap = m && m.mcap ? m.mcap : 0; renderLobby();
       if (t.curve) { $('#curveBox').hidden = false; $('#curveTxt').textContent = (t.curve.progress * 100).toFixed(1) + '% of the bonding curve sold · ' + t.curve.realSol.toFixed(2) + ' SOL in the curve'; $('#curveBar').style.width = (t.curve.progress * 100).toFixed(1) + '%'; }
       else $('#curveBox').hidden = true;
-    } catch (e) { $('#tokNote').textContent = 'Chain data is offline right now. Retrying.'; }
+      monSample(t); renderCalc(); renderStatus();
+    } catch (e) { $('#tokNote').textContent = 'Chain data is offline right now. Retrying.'; S.tokErr = true; renderStatus(); $('#monS0').textContent = 'Chain data offline · retrying'; }
   }
   async function loadBurns() {
     if (!S.cfg.ca) return;
@@ -198,7 +202,7 @@
       const j = await api('burns'); const prev = S.burns ? S.burns.length : null; S.burns = j.list || [];
       renderBin(S.burns, S.token); if (prev != null && S.burns.length > prev) cmdPrint('<i>New burn on-chain: ' + compact(Number(S.burns[0].amount) / 10 ** ((S.token && S.token.decimals) || 6)) + ' $HODLEM</i>');
       const d = 10 ** ((S.token && S.token.decimals) || 6);
-      $('#bCount').textContent = S.burns.length;
+      $('#bCount').textContent = S.burns.length; renderStatus();
       $('#bRows').innerHTML = S.burns.length ? S.burns.map(b => `<tr><td>${b.t ? new Date(b.t).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—'}</td><td class="r">${compact(Number(b.amount) / d)}</td><td><a href="https://solscan.io/tx/${esc(b.sig)}" target="_blank" rel="noopener">${short(b.sig)}</a></td></tr>`).join('') : '<tr><td colspan="3">No burns yet. The first one lands here.</td></tr>';
       $('#bStatus').textContent = j.wallets && j.wallets.length ? 'Watching ' + j.wallets.map(short).join(', ') + ' · total burned counts every burn' : 'Set HODLEM_CREATOR to list burns';
     } catch (e) { $('#bStatus').textContent = 'Burn list offline right now. Retrying.'; }
@@ -299,7 +303,7 @@
     else if (/^(Flop|Turn|River):/.test(line)) cmdPrint('  ' + esc(line));
   }
   const CMDS = {
-    help: () => cmdPrint('Commands:\n  DEAL  FOLD  CALL  CHECK  RAISE [btc]  ALLIN\n  STATS  TABLES  SIT [1-5]  CA  BURN  PROOF  X\n  SND  DIR  VER  DATE  CLS  EXIT'),
+    help: () => cmdPrint('Commands:\n  DEAL  FOLD  CALL  CHECK  RAISE [btc]  ALLIN\n  STATS  TABLES  SIT [1-5]  CA  BURN  PROOF  X\n  MONITOR  CALC  ADDR  BIN  RULES  OPTIONS  ABOUT\n  SND  DIR  VER  DATE  CLS  EXIT'),
     ver: () => cmdPrint('HODLEM [Version 0.1.2009]\nThe poker table from Bitcoin v0.1, finished. Play money only.'),
     date: () => cmdPrint('The current date is: ' + new Date().toDateString()),
     cls: () => { cmdOut.innerHTML = ''; },
@@ -316,6 +320,8 @@
     x: () => { cmdPrint('Opening the X card…'); document.getElementById('x').scrollIntoView({ behavior: 'smooth' }); },
     snd: () => { game.sound(!game.snd); sndTxt(); cmdPrint('Sound ' + (game.snd ? 'on' : 'off') + '.'); },
     exit: () => closeWin($('#cmdWin')),
+    monitor: () => openWin('monWin'), calc: () => openWin('calcWin'), addr: () => openWin('bookWin'), options: () => openWin('optWin'),
+    about: () => openWin('aboutWin'), rules: () => openWin('helpWin'), bin: () => openWin('binWin'), start: () => toggleStart(true),
   };
   function act(kind) { const b = $(`#pokerMount [data-a="${kind === 'allin' ? 'raise' : kind}"]`); if (kind === 'allin') { const L = game.table && game.table.state === 'betting' && game.table.toAct === 0 ? game.table.legal(0) : null; if (L) { const inp = $('#pokerMount [data-k="amt"]'); inp.value = (L.maxTo / HT.DIV); } } if (b && !b.disabled) b.click(); else cmdPrint('Not your turn.'); }
   if (cmdIn) {
@@ -342,6 +348,159 @@
     box.innerHTML = list && list.length ? list.map(b => `<a class="it" href="https://solscan.io/tx/${esc(b.sig)}" target="_blank" rel="noopener"><img src="/img/i-bin.png" alt=""><span>${compact(Number(b.amount) / d)} $HODLEM</span><small>${b.t ? new Date(b.t).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}</small></a>`).join('') : `<div class="bin-empty">${S.cfg.ca ? 'The bin is empty. The first burn lands here.' : 'The bin opens when $HODLEM launches.'}</div>`;
     $('#binStatus').textContent = (list ? list.length : 0) + ' object(s)' + (t ? ' · ' + compact(Number(t.burned) / d) + ' $HODLEM burned in total' : '');
     $('#binDet').innerHTML = t ? `Burned: <b>${compact(Number(t.burned) / d)}</b><br>Of supply: <b>${t.burnedPct.toFixed(3)}%</b><br>Fees waiting: <b>${t.fees ? t.fees.totalSol.toFixed(4) + ' SOL' : '-'}</b>` : 'No data before launch.';
+  }
+
+
+  /* ---------- Start menu, data-open links, Show Desktop, Turn Off ---------- */
+  const startBtn = $('#startBtn'), startMenu = $('#startMenu');
+  function toggleStart(on) { const v = on == null ? startMenu.hidden : on; startMenu.hidden = !v; startBtn.setAttribute('aria-expanded', String(v)); }
+  startBtn.addEventListener('click', e => { e.stopPropagation(); toggleStart(); });
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-open]');
+    if (b && !b.closest('#icons')) { e.preventDefault(); openWin(b.dataset.open); toggleStart(false); return; }
+    if (!startMenu.hidden && !e.target.closest('#startMenu')) toggleStart(false);
+  });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !startMenu.hidden) toggleStart(false); });
+  $('#smShow').addEventListener('click', () => { WINS.forEach(w => { if (wstate[w.id] === 'open') minWin(w); }); toggleStart(false); });
+  $('#smOff').addEventListener('click', () => { toggleStart(false); $('#offScreen').hidden = false; });
+  $('#offScreen').addEventListener('click', () => { $('#offScreen').hidden = true; });
+
+  /* ---------- Options (table preferences, saved in this browser) ---------- */
+  function syncOpts() { const pr = game.prefs; $$('#optWin [data-pref]').forEach(el => { const v = pr[el.dataset.pref]; if (el.type === 'checkbox') el.checked = !!v; else el.value = v; }); $('#optSnd').checked = !!game.snd; }
+  $$('#optWin [data-pref]').forEach(el => el.addEventListener('change', () => { game.setPref(el.dataset.pref, el.type === 'checkbox' ? el.checked : el.value); cmdPrint('Options: ' + el.dataset.pref + ' = ' + (el.type === 'checkbox' ? (el.checked ? 'on' : 'off') : el.value)); }));
+  $('#optSnd').addEventListener('change', e => { game.sound(e.target.checked); sndTxt(); });
+  let resetArm = 0;
+  $('#optReset').addEventListener('click', e => {
+    if (Date.now() - resetArm > 4000) { resetArm = Date.now(); e.target.textContent = 'Click again to reset'; setTimeout(() => { e.target.textContent = 'Reset everything…'; }, 4000); return; }
+    try { localStorage.removeItem('hodlem:v1'); } catch (_) { } location.reload();
+  });
+  syncOpts();
+
+  /* ---------- Address Book: the real addresses, nothing invented ---------- */
+  let bookSel = 0, bookRows = [];
+  function renderBook() {
+    const c = S.cfg || {};
+    bookRows = [
+      { n: '$HODLEM token (CA)', a: c.ca, u: c.ca && 'https://solscan.io/token/' + c.ca, none: 'Not launched yet' },
+      { n: 'Creator wallet (fees in)', a: c.creator, u: c.creator && 'https://solscan.io/account/' + c.creator, none: 'Set at launch' },
+      ...(c.burners || []).map((b, i) => ({ n: 'Burn wallet ' + (i + 1), a: b, u: 'https://solscan.io/account/' + b })),
+      { n: 'pump.fun program', a: '6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P', u: 'https://solscan.io/account/6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P' },
+      { n: 'PumpSwap program', a: 'pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA', u: 'https://solscan.io/account/pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA' },
+      { n: 'Genesis reward (Bitcoin, 2009)', a: '1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa', u: 'https://mempool.space/address/1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa' },
+    ];
+    bookSel = Math.min(bookSel, bookRows.length - 1);
+    $('#bkRows').innerHTML = bookRows.map((r, i) => `<tr data-i="${i}" class="${i === bookSel ? 'sel' : ''} ${r.a ? '' : 'dis'}"><td>${esc(r.n)}</td><td>${r.a ? esc(r.a) : esc(r.none || '—')}</td></tr>`).join('');
+  }
+  $('#bkRows').addEventListener('click', e => { const tr = e.target.closest('tr[data-i]'); if (tr) { bookSel = +tr.dataset.i; renderBook(); } });
+  $('#bkRows').addEventListener('dblclick', e => { const tr = e.target.closest('tr[data-i]'); if (tr) { bookSel = +tr.dataset.i; $('#bkView').click(); } });
+  $('#bkCopy').addEventListener('click', () => { const r = bookRows[bookSel]; if (!r || !r.a) return toast('Nothing to copy yet.'); navigator.clipboard && navigator.clipboard.writeText(r.a).then(() => toast(r.n + ' copied')); });
+  $('#bkView').addEventListener('click', () => { const r = bookRows[bookSel]; if (!r || !r.u) return toast('Nothing to view yet.'); window.open(r.u, '_blank', 'noopener'); });
+
+  /* ---------- Poker Help ---------- */
+  const mc = (r, s) => `<span class="mc ${s === '♥' || s === '♦' ? 'r' : ''}">${r}<i>${s}</i></span>`;
+  const hand = str => str.split(' ').map(c => mc(c.slice(0, -1), c.slice(-1))).join('');
+  const HELP = {
+    rank: ['Hand Rankings', `<h3>Hand Rankings</h3><p>Best five cards out of your two and the five on the board. Highest first.</p><table class="rk">
+      ${[['1', 'Royal Flush', 'A♠ K♠ Q♠ J♠ 10♠', 'A to 10, one suit.'], ['2', 'Straight Flush', '9♥ 8♥ 7♥ 6♥ 5♥', 'Five in a row, one suit.'], ['3', 'Four of a Kind', 'Q♣ Q♦ Q♥ Q♠ 4♦', 'Four of one rank.'], ['4', 'Full House', 'J♠ J♥ J♦ 8♣ 8♠', 'Three of a kind plus a pair.'], ['5', 'Flush', 'A♦ J♦ 9♦ 6♦ 2♦', 'Five of one suit.'], ['6', 'Straight', '10♣ 9♦ 8♠ 7♥ 6♣', 'Five in a row. A-2-3-4-5 counts.'], ['7', 'Three of a Kind', '7♠ 7♥ 7♣ K♦ 2♠', 'Three of one rank.'], ['8', 'Two Pair', 'K♥ K♣ 5♠ 5♦ 9♥', 'Two different pairs.'], ['9', 'One Pair', 'A♣ A♥ Q♠ 8♦ 3♣', 'Two of one rank.'], ['10', 'High Card', 'A♠ J♦ 8♣ 6♥ 2♠', 'Nothing else: the highest card plays.']].map(r => `<tr><td class="n">${r[0]}</td><td><b>${r[1]}</b><br><small>${r[3]}</small></td><td class="cards">${hand(r[2])}</td></tr>`).join('')}</table>`],
+    play: ['How to Play', `<h3>How to Play</h3><p>Heads-up No-Limit Texas Hold'em: you against one bot.</p><ol>
+      <li><b>Blinds.</b> The button posts the small blind and the other seat the big blind. The button moves every hand.</li>
+      <li><b>Hole cards.</b> You get two cards only you can see.</li>
+      <li><b>Pre-flop.</b> The button acts first: Fold, Call or Raise.</li>
+      <li><b>Flop, Turn, River.</b> Three, then one, then one more card on the board. A betting round after each; the big blind acts first.</li>
+      <li><b>Showdown.</b> Best five-card hand wins the pot. Equal hands split it.</li></ol>
+      <p><b>Raises</b> must be at least the size of the last bet or raise. <b>All-in</b> with nothing left to bet: the rest of the board is dealt out. Out of chips? Tick <b>Generate Coins</b> in the Bitcoin window.</p>
+      <p><b>Pre-action boxes</b> (FOLD, CALL, CALL ANY, RAISE, RAISE ANY) act for you as soon as it is your turn, like in the 2009 window.</p>`],
+    keys: ['Keys', `<h3>Keys</h3><table class="kt"><tr><td><kbd>D</kbd></td><td>Deal Hand</td></tr><tr><td><kbd>F</kbd></td><td>Fold</td></tr><tr><td><kbd>C</kbd></td><td>Call or Check</td></tr><tr><td><kbd>R</kbd> / <kbd>Enter</kbd></td><td>Raise to the amount in the box</td></tr><tr><td><kbd>L</kbd></td><td>Leave Table</td></tr><tr><td><kbd>Esc</kbd></td><td>Close the Start menu</td></tr></table>
+      <p>Keys work while the Poker window is active. In the Command Prompt type <b>HELP</b> for every command, e.g. <code>raise 2</code>, <code>sit 2</code>, <code>monitor</code>.</p>`],
+    tables: ['The Tables', `<h3>The Tables</h3><p>One table per Bitcoin epoch. Your starting stack is that epoch's block reward, and the bot gets sharper.</p><table class="rk">${EPOCHS.map((e, i) => `<tr><td class="n">${i + 1}</td><td><b>${esc(e.name)}</b><br><small>Block ${e.block.toLocaleString('en-US')} · ${e.date}</small></td><td>${fmt(e.stack)}<br><small>blinds ${fmt(e.sb).replace(' BTC', '')}/${fmt(e.bb).replace(' BTC', '')} · bot ${e.level}/5</small></td><td>${e.unlock ? 'opens at $' + compact(e.unlock) + ' mcap' : 'open'}</td></tr>`).join('')}</table>`],
+    money: ['Play Money', `<h3>Play Money</h3><p>Every chip at Satoshi's table is play money. It cannot be bought, sold, withdrawn or swapped for $HODLEM or anything else.</p><p>Your stacks, stats, hand history and options are saved in this browser only. Reset them in <a href="#" data-open="optWin">Options</a>.</p><p>$HODLEM is a separate memecoin on Solana. 100% of its creator fees buy back $HODLEM and burn it. See the <a href="#" data-open="binWin">Burn Bin</a>.</p>`],
+  };
+  let helpCur = 'rank';
+  function renderHelp() {
+    $('#hpTree').innerHTML = '<div class="hd">Contents</div>' + Object.entries(HELP).map(([k, v]) => `<div data-hp="${k}" class="${k === helpCur ? 'sel' : ''}">${v[0]}</div>`).join('');
+    $('#hpPage').innerHTML = HELP[helpCur][1]; $('#hpPage').scrollTop = 0;
+    $$('#helpWin .hp-tool [data-hp]').forEach(b => b.classList.toggle('on', b.dataset.hp === helpCur));
+  }
+  $('#helpWin').addEventListener('click', e => { const b = e.target.closest('[data-hp]'); if (b) { helpCur = b.dataset.hp; renderHelp(); } });
+  renderHelp();
+
+  /* ---------- Burn Calculator ---------- */
+  let calcIn = '0';
+  function renderCalc() {
+    $('#cIn').textContent = calcIn;
+    const t = S.token, m = t && t.market, sol = parseFloat(calcIn) || 0;
+    if (!t || !m || !m.priceSol) { ['#cTok', '#cPct', '#cUsd'].forEach(id => { $(id).textContent = '—'; }); $('#cNote').textContent = S.cfg.ca ? 'Waiting for a live SOL price for $HODLEM.' : 'Live price after launch. Estimate before trading fees and slippage.'; return; }
+    const tok = sol / m.priceSol, supply = Number(t.supply) / 10 ** t.decimals;
+    $('#cTok').textContent = sol ? compact(tok) + ' $HODLEM' : '—';
+    $('#cPct').textContent = sol ? (tok / supply * 100).toFixed(tok / supply * 100 < 0.01 ? 5 : 3) + '%' : '—';
+    $('#cUsd').textContent = sol && m.priceUsd ? usd(tok * m.priceUsd) : '—';
+    $('#cNote').textContent = 'At $HODLEM ' + usd(m.priceUsd) + '. Estimate before trading fees and slippage.';
+  }
+  function calcKey(k) {
+    if (k === 'C') calcIn = '0';
+    else if (k === 'back') calcIn = calcIn.length > 1 ? calcIn.slice(0, -1) : '0';
+    else if (k === 'fees') { const f = S.token && S.token.fees ? S.token.fees.totalSol : null; if (f == null) { toast('Fees waiting show up after launch.'); return; } calcIn = String(+f.toFixed(4)); }
+    else if (k === '.') { if (!calcIn.includes('.')) calcIn += '.'; }
+    else if (calcIn.replace('.', '').length < 9) calcIn = calcIn === '0' ? (k === '00' ? '0' : k) : calcIn + k;
+    renderCalc();
+  }
+  $('#calcKeys').addEventListener('click', e => { const b = e.target.closest('[data-k]'); if (b) calcKey(b.dataset.k); });
+  document.addEventListener('keydown', e => {
+    if (!$('#calcWin').classList.contains('active') || $('#calcWin').hidden || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
+    const k = e.key === 'Backspace' ? 'back' : e.key === 'Escape' || e.key === 'Delete' ? 'C' : /^[0-9.]$/.test(e.key) ? e.key : null;
+    if (k) { e.preventDefault(); e.stopPropagation(); calcKey(k); }
+  }, true);
+  renderCalc();
+
+  /* ---------- $HODLEM Monitor: live readouts + a graph of this session's samples ---------- */
+  const mon = { s: [], tab: 'mcap', scroll: 0 };
+  function monSample(t) {
+    const m = t.market || {}, d = 10 ** t.decimals, pct = v => (v > 0 ? '+' : '') + v.toFixed(1) + '%';
+    mon.s.push({ t: Date.now(), mcap: m.mcap || null, price: m.priceUsd || null, burn: Number(t.burned) / d }); if (mon.s.length > 240) mon.s.shift();
+    $('#mPrice').textContent = usd(m.priceUsd); $('#mMcap').textContent = usd(m.mcap); $('#mVol').textContent = m.vol24 != null ? usd(m.vol24) : '—';
+    $('#mChg').textContent = m.chg24 != null && m.priceUsd ? pct(m.chg24) : '—'; $('#mChg1').textContent = m.chg1 != null && m.priceUsd ? pct(m.chg1) : '—';
+    $('#mTx').textContent = m.txns24 != null && m.priceUsd ? m.txns24.toLocaleString('en-US') : '—'; $('#mLiq').textContent = m.liq ? usd(m.liq) : '—';
+    $('#mCurve').textContent = t.curve ? (t.curve.progress * 100).toFixed(1) + '%' : t.graduated ? 'graduated' : '—';
+    $('#mBurn').textContent = compact(Number(t.burned) / d) + ' (' + t.burnedPct.toFixed(2) + '%)'; $('#mFees').textContent = t.fees ? t.fees.totalSol.toFixed(4) + ' SOL' : '—';
+    $('#monS0').textContent = m.priceUsd ? 'Live · ' + (m.dex || 'dex') : 'Live on-chain · market data appears after the first trades';
+    $('#monS1').textContent = 'Samples: ' + mon.s.length; $('#monS2').textContent = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    drawMon();
+  }
+  function drawMon() {
+    const cv = $('#monCv'), w = cv.clientWidth || 480, h = cv.clientHeight || 150, dpr = Math.min(2, window.devicePixelRatio || 1);
+    if (cv.width !== Math.round(w * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+    const x = cv.getContext('2d'); x.setTransform(dpr, 0, 0, dpr, 0, 0); x.fillStyle = '#000'; x.fillRect(0, 0, w, h);
+    x.strokeStyle = '#0b4d1f'; x.lineWidth = 1; const g = 15, off = mon.scroll % g;
+    for (let i = w - off; i > 0; i -= g) { x.beginPath(); x.moveTo(Math.round(i) + .5, 0); x.lineTo(Math.round(i) + .5, h); x.stroke(); }
+    for (let j = h; j > 0; j -= g) { x.beginPath(); x.moveTo(0, j + .5); x.lineTo(w, j + .5); x.stroke(); }
+    const key = mon.tab, pts = mon.s.filter(p => p[key] != null), cap = $('#monCap'), label = { mcap: 'Market cap', price: 'Price', burn: 'Burned' }[key];
+    if (!S.cfg.ca) { cap.textContent = 'Waiting for $HODLEM to launch…'; return; }
+    if (!pts.length) { cap.textContent = label + ': no data yet'; return; }
+    const vs = pts.map(p => p[key]); let lo = Math.min(...vs), hi = Math.max(...vs); if (hi - lo < hi * 0.002) { lo = lo * 0.995; hi = hi * 1.005 || 1; }
+    const X = i => pts.length === 1 ? w - 2 : w - 2 - (pts.length - 1 - i) * Math.max(2, Math.min(15, (w - 4) / (pts.length - 1)));
+    const Y = v => h - 8 - (v - lo) / (hi - lo) * (h - 22);
+    x.strokeStyle = '#3f3'; x.lineWidth = 1.5; x.beginPath(); pts.forEach((p, i) => { const px = X(i), py = Y(p[key]); i ? x.lineTo(px, py) : x.moveTo(px, py); }); x.stroke();
+    if (pts.length === 1) { x.fillStyle = '#3f3'; x.fillRect(X(0) - 2, Y(vs[0]) - 2, 4, 4); }
+    const last = vs[vs.length - 1]; cap.textContent = label + ' ' + (key === 'burn' ? compact(last) : usd(last)) + ' · this session, one sample every 15 s';
+  }
+  $('#monWin .mon-tabs').addEventListener('click', e => { const b = e.target.closest('[data-mt]'); if (!b) return; mon.tab = b.dataset.mt; $$('#monWin [data-mt]').forEach(x => x.classList.toggle('on', x === b)); drawMon(); });
+  setInterval(() => { if (!document.hidden && wstate.monWin === 'open') { mon.scroll += 15; if (S.cfg.ca) loadToken(); else drawMon(); } }, 15000);
+
+  /* ---------- System Status (the honest table) ---------- */
+  function renderStatus() {
+    const c = S.cfg || {}, t = S.token, m = t && t.market, rows = [];
+    const row = (part, st, cls, det) => rows.push(`<tr><td>${part}</td><td class="${cls}">${st}</td><td>${det}</td></tr>`);
+    row('Poker game', 'LIVE', 'ok', 'Heads-up No-Limit Hold\'em against a bot. Play money, runs in your browser.');
+    row('X player card (/play)', 'LIVE', 'ok', 'Post the link on X and the table plays inside the post.');
+    row('Five tables', 'LIVE', 'ok', EPOCHS.filter(open).length + ' of 5 open at the current market cap.');
+    row('$HODLEM token', c.ca ? (t ? 'LIVE' : S.tokErr ? 'OFFLINE' : 'CHECKING') : 'NOT LAUNCHED', c.ca ? (t ? 'ok' : 'wait') : 'off', c.ca ? esc(short(c.ca)) + ' on Solana' : 'The contract address appears here at launch.');
+    row('Market data', m && m.priceUsd ? 'LIVE' : c.ca ? 'WAITING' : '—', m && m.priceUsd ? 'ok' : 'off', m && m.priceUsd ? 'Price ' + usd(m.priceUsd) + ' · mcap ' + usd(m.mcap) + ' (Dexscreener)' : 'Shows up once the first trades are indexed.');
+    row('Buyback &amp; burn tool', c.ca ? 'READY' : 'AT LAUNCH', c.ca ? 'ok' : 'off', 'Claim fees → buy $HODLEM → burn exactly what was bought, in one signed transaction.');
+    row('Burn ledger', c.ca ? (S.burns ? 'LIVE' : 'CHECKING') : 'AT LAUNCH', c.ca && S.burns ? 'ok' : 'off', S.burns ? S.burns.length + ' burn(s) read from the chain. Burned = 1B − supply.' : 'Reads every burn from the creator and burn wallets.');
+    row('Creator wallet', c.creator ? 'SET' : 'NOT SET', c.creator ? 'ok' : 'off', c.creator ? esc(short(c.creator)) + ' · see Address Book' : 'Set at launch.');
+    row('Worldwide hand counter', c.kv ? 'LIVE' : 'OFF', c.kv ? 'ok' : 'off', c.kv ? (S.global != null ? S.global.toLocaleString('en-US') + ' hands dealt so far.' : 'Counting.') : 'Turns on when the counter database is connected.');
+    $('#stRows').innerHTML = rows.join('');
+    $('#stS0').textContent = 'Checked ' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' · refreshes with the chain data';
   }
 
   /* ---------- boot screen (real steps, skippable) ---------- */
