@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>HODLEM (2009)</title>
+<meta name="description" content="The poker table Satoshi left in Bitcoin's first code. Tap to deal.">
+<meta name="twitter:card" content="player">
+<meta name="twitter:title" content="HODLEM (2009)">
+<meta name="twitter:description" content="The poker table Satoshi left in Bitcoin's first code. Tap to deal.">
+<meta name="twitter:image" content="https://hodlem.vercel.app/img/poster.png">
+<meta name="twitter:player" content="https://hodlem.vercel.app/play">
+<meta name="twitter:player:width" content="480">
+<meta name="twitter:player:height" content="480">
+<link rel="icon" type="image/png" sizes="32x32" href="/img/icon-32.png">
+<link rel="stylesheet" href="/css/hodlem.css?v=3">
+</head>
+<body class="card">
+<div class="cardwin">
+  <div class="tb"><img src="/img/icon-32.png" alt=""><span>Poker · Satoshi's Table</span><span class="sp"></span><a href="https://hodlem.vercel.app/" target="_blank" rel="noopener">hodlem</a></div>
+  <div id="pokerMount"></div>
+  <div class="statusbar"><span class="grow" id="pwStatus">Ready</span><span class="snd" id="sndBtn" role="button" tabindex="0">SND ON</span></div>
+</div>
+<script src="/js/poker.js?v=3"></script>
+<script src="/js/table.js?v=3"></script>
+<script>
+(function () {
+  var st = document.getElementById('pwStatus'), snd = document.getElementById('sndBtn');
+  var g = HodlemTable.mount(document.getElementById('pokerMount'), { compact: true, keys: true, onStatus: function (s) { st.textContent = s; },
+    onHand: function () { try { fetch('/api/hands', { method: 'POST' }); } catch (e) {} } });
+  snd.textContent = g.snd ? 'SND ON' : 'SND OFF';
+  snd.onclick = function () { g.sound(!g.snd); snd.textContent = g.snd ? 'SND ON' : 'SND OFF'; };
+})();
+</script>
+</body>
+</html>

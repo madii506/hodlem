@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HODLEM</title>
+<meta name="description" content="Satoshi's unfinished poker game. Bitcoin v0.1 shipped with a poker table in its code and never dealt a hand. Play it, inside X. Creator fees buy back and burn $HODLEM.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://hodlem.vercel.app/">
+<meta property="og:title" content="HODLEM (2009)">
+<meta property="og:description" content="The poker table Satoshi left in Bitcoin's first code. Tap to deal.">
+<meta property="og:image" content="https://hodlem.vercel.app/img/og.png">
+<meta name="twitter:card" content="player">
+<meta name="twitter:title" content="HODLEM (2009)">
+<meta name="twitter:description" content="The poker table Satoshi left in Bitcoin's first code. Tap to deal.">
+<meta name="twitter:image" content="https://hodlem.vercel.app/img/poster.png">
+<meta name="twitter:player" content="https://hodlem.vercel.app/play">
+<meta name="twitter:player:width" content="480">
+<meta name="twitter:player:height" content="480">
+<meta name="theme-color" content="#000000">
+<link rel="icon" type="image/png" sizes="32x32" href="/img/icon-32.png">
+<link rel="icon" type="image/png" sizes="64x64" href="/img/icon-64.png">
+<link rel="apple-touch-icon" href="/img/icon-180.png">
+<link rel="preload" href="/fonts/ps2p.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/css/hodlem.css?v=3">
+</head>
+<body>
+<div class="boot" id="boot" role="status" aria-live="polite">
+  <div class="boot-in">
+    <div class="boot-logo"><img class="s" src="/img/sprite.png" alt=""><img class="w" src="/img/wordmark.png" alt="HODLEM"></div>
+    <div class="boot-sub">SATOSHI'S UNFINISHED POKER GAME</div>
+    <div class="boot-bar" aria-hidden="true"><i></i><i></i><i></i></div>
+    <pre class="boot-log" id="bootLog"></pre>
+    <div class="boot-skip blink">PRESS ANY KEY</div>
+  </div>
+</div>
+<header class="top">
+  <div class="wrap top-in">
+    <nav class="nav" id="nav" aria-label="Sections">
+      <a href="#play">Play</a><a href="#proof">Proof</a><a href="#x">On X</a><a href="#token">$HODLEM</a><a href="#burn">Burn</a><a href="#tables">Tables</a><a href="#faq">FAQ</a>
+    </nav>
+    <span class="sp"></span>
+    <span class="pill" id="caPill" hidden><span class="lbl">CA</span><code id="caShort"></code><button type="button" id="caCopy">COPY</button></span>
+    <a class="pbtn orange" id="buyTop" href="#token">BUY</a>
+  </div>
+</header>
+
+<section class="hero" id="play">
+  <div class="stars" id="stars1" aria-hidden="true"></div>
+  <div class="wrap hero-head">
+    <div class="lines">Satoshi's unfinished poker game.<br>Play on X. Dealt for the first time.</div>
+    <div class="press blink" id="press">PRESS ANY KEY TO DEAL</div>
+  </div>
+  <div class="desk" id="desk">
+    <div class="icons" id="icons" aria-label="Desktop">
+      <button type="button" class="ico" data-open="mainWin"><img src="/img/i-coin.png" alt=""><span>Bitcoin</span></button>
+      <button type="button" class="ico" data-open="lobbyWin"><img src="/img/i-lobby.png" alt=""><span>Poker Lobby</span></button>
+      <button type="button" class="ico" data-open="pokerWin"><img src="/img/i-poker.png" alt=""><span>Poker</span></button>
+      <button type="button" class="ico" data-open="webWin"><img src="/img/i-web.png" alt=""><span>hodlem.htm</span></button>
+      <button type="button" class="ico" data-open="cmdWin"><img src="/img/i-cmd.png" alt=""><span>Command Prompt</span></button>
+      <button type="button" class="ico" data-open="histWin"><img src="/img/i-hist.png" alt=""><span>Hand History.txt</span></button>
+      <button type="button" class="ico" data-open="readmeWin"><img src="/img/i-note.png" alt=""><span>readme.txt</span></button>
+      <button type="button" class="ico" data-open="binWin"><img src="/img/i-bin.png" alt=""><span>Burn Bin</span></button>
+    </div>
+    <!-- CMainFrameBase -->
+    <div class="win dsk" id="mainWin" data-icon="coin" data-title="Bitcoin">
+      <div class="tb"><span class="ti"><img src="/img/i-coin-16.png" alt="">Bitcoin</span><span class="tbtns"><button type="button" data-w="min" aria-label="Minimize">_</button><button type="button" aria-label="Maximize">□</button><button type="button" class="x" data-w="close" aria-label="Close">✕</button></span></div>
+      <div class="menubar"><span><u>F</u>ile</span><span id="mfOptions"><u>O</u>ptions</span><span><u>H</u>elp</span></div>
+      <div class="mf-tool"><button type="button" id="mfSend"><img class="ico" src="/img/i-coin.png" alt=""><span><u>S</u>end Coins</span></button><button type="button" id="mfBook"><img class="ico" src="/img/i-note.png" alt=""><span><u>A</u>ddress Book</span></button></div>
+      <div class="mf-addr">Your Bitcoin Address: <input class="xp-input" id="mfAddr" readonly value="(play money · not a real address)"><button class="xp-btn" type="button" id="mfCopy"><u>C</u>opy to Clipboard</button><button class="xp-btn" type="button" disabled>C<u>h</u>ange...</button></div>
+      <div class="mf-bal">Balance: <b id="mfBal">50.00</b><span class="sp"></span><label class="xp-check"><input type="checkbox" id="mfGen"><i></i><u>G</u>enerate Coins</label><select class="xp-input" aria-label="Filter"><option> All</option><option> Sent</option><option> Received</option><option> In Progress</option></select></div>
+      <div class="mf-tabs"><span>All Transactions</span></div>
+      <div class="mf-list sunken"><table class="xp-list"><thead><tr><th style="width:90px">Status</th><th style="width:120px">Date</th><th>Description</th><th class="r" style="width:79px">Debit</th><th class="r" style="width:79px">Credit</th></tr></thead><tbody id="mfTx"></tbody></table></div>
+      <div class="statusbar"><span class="grow" id="mfS0">Ready</span><span id="mfS1" style="width:110px"></span><span id="mfS2" style="width:280px"></span></div>
+    </div>
+    <!-- CPokerLobbyDialogBase -->
+    <div class="win dsk" id="lobbyWin" data-icon="lobby" data-title="Poker Lobby">
+      <div class="tb"><span class="ti"><img src="/img/i-lobby-16.png" alt="">Poker Lobby</span><span class="tbtns"><button type="button" data-w="min" aria-label="Minimize">_</button><button type="button" aria-label="Maximize">□</button><button type="button" class="x" data-w="close" aria-label="Close">✕</button></span></div>
+      <div class="lb-body">
+        <div class="lb-tree sunken" id="lbTree"></div>
+        <div class="lb-right">
+          <div class="lb-list sunken"><table class="xp-list"><thead><tr><th>Table</th><th>Block</th><th>Stakes</th><th>Players</th><th>Status</th></tr></thead><tbody id="lbRows"></tbody></table></div>
+          <div class="lb-note" id="lbNote">Double-click a table to sit down. New tables open as $HODLEM grows.</div>
+          <div><button class="xp-btn" type="button" id="lbOpen"><u>O</u>pen New Table</button></div>
+        </div>
+      </div>
+    </div>
+    <!-- CPokerDialogBase -->
+    <div class="win dsk active" id="pokerWin" data-icon="poker" data-title="Poker">
+      <div class="tb"><span class="ti"><img src="/img/i-poker-16.png" alt=""><span id="pwTitle">Poker</span></span><span class="tbtns"><button type="button" data-w="min" aria-label="Minimize">_</button><button type="button" aria-label="Maximize">□</button><button type="button" class="x" data-w="close" aria-label="Close">✕</button></span></div>
+      <div id="pokerMount"></div>
+      <div class="statusbar"><span class="grow" id="pwStatus">Ready</span><span class="snd" id="sndBtn" role="button" tabindex="0">SND ON</span><span id="pwClock">--:--</span></div>
+    </div>
+
+    <!-- Web Browser: the coin's 2009 homepage -->
+    <div class="win dsk" id="webWin" data-icon="web" data-title="Satoshi's Table - Web Browser">
+      <div class="tb"><span class="ti"><img src="/img/i-web-16.png" alt="">Satoshi's Table - Web Browser</span><span class="tbtns"><button type="button" data-w="min" aria-label="Minimize">_</button><button type="button" aria-label="Maximize">□</button><button type="button" class="x" data-w="close" aria-label="Close">✕</button></span></div>
+      <div class="menubar"><span><u>F</u>ile</span><span><u>E</u>dit</span><span><u>V</u>iew</span><span>F<u>a</u>vorites</span><span><u>T</u>ools</span><span><u>H</u>elp</span></div>
+      <div class="wb-tool"><button type="button" disabled>◄ Back</button><button type="button" disabled>►</button><button type="button" id="wbStop">✕</button><button type="button" id="wbRefresh">⟳</button><button type="button" id="wbHome">⌂</button><span class="sep"></span><button type="button" data-goto="#proof">Search</button><button type="button" data-goto="#faq">Help</button></div>
+      <div class="wb-addr"><span>Address</span><input class="xp-input" id="wbUrl" readonly value="http://hodlem/index.htm"><button class="xp-btn mini" type="button" id="wbGo">Go</button></div>
+      <div class="wb-page" id="wbPage">
+        <div class="gc-title">HODLEM</div>
+        <div class="gc-marq"><span>★ WELCOME TO SATOSHI'S TABLE ★ THE FIRST HAND SINCE 2009 ★ 100% OF CREATOR FEES BUY BACK &amp; BURN $HODLEM ★ PLAY MONEY ONLY ★ PRESS D TO DEAL ★</span></div>
+        <table class="gc-tbl"><tr><td>$HODLEM price</td><td id="wPrice">—</td></tr><tr><td>Market cap</td><td id="wMcap">—</td></tr><tr><td>Burned forever</td><td id="wBurn">—</td></tr><tr><td>Fees waiting to burn</td><td id="wFees">—</td></tr></table>
+        <div class="gc-count"><span>Hands dealt worldwide:</span><span class="digits" id="wHands">-------</span></div>
+        <div class="gc-btns"><a class="b88" id="wBuy" href="#token">BUY<small>$HODLEM</small></a><a class="b88 b2" href="#proof">THE<small>PROOF</small></a><a class="b88 b3" href="#burn">BURN<small>IT</small></a><a class="b88 b4" href="#x">ON<small>X</small></a></div>
+        <ul class="gc-links"><li><a href="#proof">The poker table in Bitcoin's first code</a></li><li><a href="#tables">Five epochs, five tables</a></li><li><a href="#faq">Frequently asked questions</a></li></ul>
+        <div class="gc-foot">Best viewed at 800 x 600 · Updated <span id="wDate"></span></div>
+      </div>
+      <div class="statusbar"><span class="grow" id="wbStatus">Done</span><span style="width:110px">Internet</span></div>
+    </div>
+    <!-- Command Prompt: live log + commands -->
+    <div class="win dsk" id="cmdWin" data-icon="cmd" data-title="Command Prompt">
+      <div class="tb"><span class="ti"><img src="/img/i-cmd-16.png" alt="">Command Prompt</span><span class="tbtns"><button type="button" data-w="min" aria-label="Minimize">_</button><button type="button" aria-label="Maximize">□</button><button type="button" class="x" data-w="close" aria-label="Close">✕</button></span></div>
+      <div class="cmd" id="cmd"><pre id="cmdOut"></pre><div class="cmd-in"><span>C:\HODLEM&gt;</span><input id="cmdIn" spellcheck="false" autocomplete="off" aria-label="Command"></div></div>
+    </div>
+    <!-- Notepad: your real hand history -->
+    <div class="win dsk np2" id="histWin" data-icon="hist" data-title="Hand History.txt - Notepad" hidden>
+      <div class="tb"><span class="ti"><img src="/img/i-hist-16.png" alt="">Hand History.txt - Notepad</span><span class="tbtns"><button type="button" data-w="min" aria-label="Minimize">_</button><button type="button" aria-label="Maximize">□</button><button type="button" class="x" data-w="close" aria-label="Close">✕</button></span></div>
+      <div class="menubar"><span><u>F</u>ile</span><span><u>E</u>dit</span><span>F<u>o</u>rmat</span><span><u>V</u>iew</span><span><u>H</u>elp</span></div>
+      <textarea class="np-ta" id="histTa" readonly spellcheck="false"></textarea>
+    </div>
+    <!-- Notepad: readme -->
+    <div class="win dsk np2" id="readmeWin" data-icon="note" data-title="readme.txt - Notepad">
+      <div class="tb"><span class="ti"><img src="/img/i-note-16.png" alt="">readme.txt - Notepad</span><span class="tbtns"><button type="button" data-w="min" aria-label="Minimize">_</button><button type="button" aria-label="Maximize">□</button><button type="button" class="x" data-w="close" aria-label="Close">✕</button></span></div>
+      <div class="menubar"><span><u>F</u>ile</span><span><u>E</u>dit</span><span>F<u>o</u>rmat</span><span><u>V</u>iew</span><span><u>H</u>elp</span></div>
+      <textarea class="np-ta" readonly spellcheck="false">HODLEM - readme.txt
+===================
+
+In 2009 Bitcoin v0.1 shipped with a Poker Lobby
+and a Poker table in its code. Deal Hand, Fold,
+Call, Raise, Leave Table. The game was never written.
+
+This finishes it.
+
+HOW TO PLAY
+  D  Deal Hand      F  Fold
+  C  Call / Check   R  Raise
+  L  Leave Table
+
+You start with 50.00 play BTC, the first block
+reward. Out of coins? Tick "Generate Coins".
+
+$HODLEM
+  100% of creator fees buy back $HODLEM and burn it.
+  Every burn is on-chain. See Burn Bin.
+
+Play money only. Not affiliated with Bitcoin
+or Satoshi Nakamoto.</textarea>
+    </div>
+    <!-- Burn Bin -->
+    <div class="win dsk" id="binWin" data-icon="bin" data-title="Burn Bin" hidden>
+      <div class="tb"><span class="ti"><img src="/img/i-bin-16.png" alt="">Burn Bin</span><span class="tbtns"><button type="button" data-w="min" aria-label="Minimize">_</button><button type="button" aria-label="Maximize">□</button><button type="button" class="x" data-w="close" aria-label="Close">✕</button></span></div>
+      <div class="menubar"><span><u>F</u>ile</span><span><u>E</u>dit</span><span><u>V</u>iew</span><span><u>H</u>elp</span></div>
+      <div class="bin-body">
+        <div class="bin-side"><div class="bin-box"><b>Burn Bin Tasks</b><a href="#burn">Burn more $HODLEM</a><span class="dis">Empty the Bin (burns can't be undone)</span><span class="dis">Restore all items (no)</span></div><div class="bin-box"><b>Details</b><span id="binDet">Loading…</span></div></div>
+        <div class="bin-list sunken" id="binList"></div>
+      </div>
+      <div class="statusbar"><span class="grow" id="binStatus">—</span></div>
+    </div>
+  </div>
+  <div class="taskbar" id="taskbar" aria-label="Taskbar">
+    <span class="tb-list" id="tbList"></span>
+    <span class="sp"></span>
+    <span class="tray"><span id="trayHands">0 hands</span><span id="trayClock">--:--</span></span>
+  </div>
+</section>
+
+<section class="sec" id="proof">
+  <div class="wrap">
+    <div class="sec-h"><div class="k">THE PROOF</div><h2>The table was in the code.</h2>
+      <p>Bitcoin v0.1 shipped with a Poker Lobby and a Poker table: Deal Hand, Fold, Call, Raise, Leave Table. The windows were designed. The game was never written. Here is the real file.</p></div>
+    <div class="win sw np">
+      <div class="tb"><span class="ti"><img src="/img/i-note-16.png" alt="">uibase.h - Notepad</span><span class="tbtns"><button type="button" aria-label="Minimize">_</button><button type="button" aria-label="Maximize">□</button><button type="button" class="x" aria-label="Close">✕</button></span></div>
+      <div class="menubar"><span><u>F</u>ile</span><span><u>E</u>dit</span><span>F<u>o</u>rmat</span><span><u>V</u>iew</span><span><u>H</u>elp</span></div>
+      <pre>   1  <span class="c">// Copyright (c) 2009 Satoshi Nakamoto</span>
+   2  <span class="c">// Distributed under the MIT/X11 software license, see the accompanying</span>
+   3  <span class="c">// file license.txt or http://www.opensource.org/licenses/mit-license.php.</span>
+      ...
+ 617  <span class="c">///////////////////////////////////////////////////////////////////////////////</span>
+ 618  <span class="c">/// Class CPokerLobbyDialogBase</span>
+ 619  <span class="c">///////////////////////////////////////////////////////////////////////////////</span>
+ 620  class CPokerLobbyDialogBase : public wxFrame
+ 621  {
+ 622  private:
+ 623  
+ 624  protected:
+ 625      wxTreeCtrl* m_treeCtrl;
+ 626      wxListCtrl* m_listCtrl;
+<span class="hl"> 627      wxButton* m_buttonNewTable;</span>
+ 628  
+ 629  <span class="c">    // Virtual event handlers, overide them in your derived class</span>
+ 630      virtual void OnTreeSelChanged(wxTreeEvent&amp; event){ event.Skip(); }
+ 631      virtual void OnListItemActivated(wxListEvent&amp; event){ event.Skip(); }
+ 632      virtual void OnListItemSelected(wxListEvent&amp; event){ event.Skip(); }
+<span class="hl"> 633      virtual void OnButtonNewTable(wxCommandEvent&amp; event){ event.Skip(); }</span>
+ 634  
+ 635  
+ 636  public:
+<span class="hl"> 637      CPokerLobbyDialogBase(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString&amp; title = wxT(<span class="s">&quot;Poker Lobby&quot;</span>), const wxPoint&amp; pos = wxDefaultPosition, const wxSize&amp; size = wxSize(586,457), long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL);</span>
+ 638      ~CPokerLobbyDialogBase();
+ 639  
+ 640  };
+ 641  
+ 642  <span class="c">///////////////////////////////////////////////////////////////////////////////</span>
+ 643  <span class="c">/// Class CPokerDialogBase</span>
+ 644  <span class="c">///////////////////////////////////////////////////////////////////////////////</span>
+ 645  class CPokerDialogBase : public wxFrame
+ 646  {
+ 647  private:
+ 648  
+ 649  protected:
+<span class="hl"> 650      wxButton* m_buttonDealHand;</span>
+<span class="hl"> 651      wxButton* m_buttonFold;</span>
+<span class="hl"> 652      wxButton* m_buttonCall;</span>
+<span class="hl"> 653      wxButton* m_buttonRaise;</span>
+<span class="hl"> 654      wxButton* m_buttonLeaveTable;</span>
+ 655      wxTextCtrl* m_textDitchPlayer;
+ 656  
+ 657  <span class="c">    // Virtual event handlers, overide them in your derived class</span>
+ 658      virtual void OnClose(wxCloseEvent&amp; event){ event.Skip(); }
+ 659      virtual void OnMouseEvents(wxMouseEvent&amp; event){ event.Skip(); }
+ 660      virtual void OnPaint(wxPaintEvent&amp; event){ event.Skip(); }
+ 661      virtual void OnSize(wxSizeEvent&amp; event){ event.Skip(); }
+ 662      virtual void OnCheckSitOut(wxCommandEvent&amp; event){ event.Skip(); }
+<span class="hl"> 663      virtual void OnButtonDealHand(wxCommandEvent&amp; event){ event.Skip(); }</span>
+<span class="hl"> 664      virtual void OnButtonFold(wxCommandEvent&amp; event){ event.Skip(); }</span>
+<span class="hl"> 665      virtual void OnButtonCall(wxCommandEvent&amp; event){ event.Skip(); }</span>
+<span class="hl"> 666      virtual void OnButtonRaise(wxCommandEvent&amp; event){ event.Skip(); }</span>
+<span class="hl"> 667      virtual void OnButtonLeaveTable(wxCommandEvent&amp; event){ event.Skip(); }</span>
+ 668      virtual void OnDitchPlayer(wxCommandEvent&amp; event){ event.Skip(); }
+ 669      virtual void OnCheckPreFold(wxCommandEvent&amp; event){ event.Skip(); }
+ 670      virtual void OnCheckPreCall(wxCommandEvent&amp; event){ event.Skip(); }
+ 671      virtual void OnCheckPreCallAny(wxCommandEvent&amp; event){ event.Skip(); }
+ 672      virtual void OnCheckPreRaise(wxCommandEvent&amp; event){ event.Skip(); }
+ 673      virtual void OnCheckPreRaiseAny(wxCommandEvent&amp; event){ event.Skip(); }
+ 674  
+ 675  
+ 676  public:
+<span class="hl"> 677      wxCheckBox* m_checkSitOut;</span>
+<span class="hl"> 678      wxCheckBox* m_checkPreFold;</span>
+<span class="hl"> 679      wxCheckBox* m_checkPreCall;</span>
+<span class="hl"> 680      wxCheckBox* m_checkPreCallAny;</span>
+<span class="hl"> 681      wxCheckBox* m_checkPreRaise;</span>
+<span class="hl"> 682      wxCheckBox* m_checkPreRaiseAny;</span>
+ 683      wxStatusBar* m_statusBar;
+<span class="hl"> 684      CPokerDialogBase(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString&amp; title = wxT(<span class="s">&quot;Poker&quot;</span>), const wxPoint&amp; pos = wxDefaultPosition, const wxSize&amp; size = wxSize(806,550), long style = wxDEFAULT_FRAME_STYLE|wxFRAME_NO_TASKBAR|wxFULL_REPAINT_ON_RESIZE|wxTAB_TRAVERSAL);</span>
+ 685      ~CPokerDialogBase();
+ 686  
+ 687  };
+ 688  </pre>
+      <div class="statusbar"><span class="grow">bitcoin-0.1.0 / src / uibase.h · MIT/X11 license</span><span>Ln 643, Col 1</span></div>
+    </div>
+    <div class="proof-links">
+      <a class="pbtn" href="https://github.com/trottier/original-bitcoin/blob/master/src/uibase.h#L618-L688" target="_blank" rel="noopener">SEE UIBASE.H</a>
+      <a class="pbtn ghost" href="https://github.com/trottier/original-bitcoin/blob/master/src/uibase.cpp#L1573" target="_blank" rel="noopener">SEE THE BUTTONS</a>
+      <a class="pbtn ghost" href="https://cointelegraph.com/magazine/bitcoin-poker-payment-satoshi-nakamoto/" target="_blank" rel="noopener">PRESS</a>
+    </div>
+    <div class="grid3 facts">
+      <div class="card"><h3>2009</h3><p>Bitcoin v0.1 is released with the poker windows inside: a lobby with Open New Table, and a table with Deal Hand, Fold, Call, Raise and Leave Table.</p></div>
+      <div class="card"><h3>0 HANDS</h3><p>The windows were generated, the buttons were named. No code ever dealt a card. The game file was never written.</p></div>
+      <div class="card"><h3>NOW</h3><p>HODLEM finishes it: the same windows, the same buttons, real Texas Hold'em, playable inside an X post. Play money only.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="x">
+  <div class="wrap">
+    <div class="sec-h"><div class="k">ON X</div><h2>The post is the table.</h2><p>Share the link and the post itself becomes the poker table. Tap play and deal, without leaving the timeline.</p></div>
+    <div class="tweet">
+      <div class="who"><img src="/img/pfp.png" alt=""><div><b>HODLEM</b><span id="xHandle">@hodlem</span></div></div>
+      <p>Back in 2009, Satoshi Nakamoto shipped Bitcoin with a poker table hidden inside the code.
+
+17 years later, I finished it, now playable directly inside X.
+
+Satoshi's unfinished game, dealt for the first time, on your timeline.
+
+Play without leaving the timeline 👇</p>
+      <div class="cardx" id="cardx"><button class="cover" type="button" id="cardPlay" aria-label="Play inside the post"><span>▶</span></button></div>
+      <div class="meta">hodlem · The poker table Satoshi left in Bitcoin's first code. Tap to deal.</div>
+    </div>
+    <div class="proof-links"><a class="pbtn" id="shareX" href="#" target="_blank" rel="noopener">POST ON X</a><button class="pbtn ghost" type="button" id="copyLink">COPY LINK</button></div>
+  </div>
+</section>
+
+<section class="sec" id="token">
+  <div class="wrap">
+    <div class="sec-h"><div class="k">$HODLEM</div><h2>The coin at the table.</h2><p id="tokNote">Live from the chain. Before launch everything here shows a dash, never a made-up number.</p></div>
+    <div class="stats">
+      <div class="stat"><span>PRICE</span><b id="tPrice">—</b></div>
+      <div class="stat"><span>MARKET CAP</span><b id="tMcap" class="or">—</b></div>
+      <div class="stat"><span>VOLUME 24H</span><b id="tVol">—</b></div>
+      <div class="stat"><span>SUPPLY</span><b id="tSupply">—</b></div>
+    </div>
+    <div class="card" id="curveBox" style="margin-top:14px" hidden><h3>BONDING CURVE</h3><p id="curveTxt">—</p><div class="bar"><i id="curveBar"></i></div></div>
+    <div class="proof-links" id="tokLinks"></div>
+  </div>
+</section>
+
+<section class="sec" id="burn">
+  <div class="wrap">
+    <div class="sec-h"><div class="k">BUYBACK &amp; BURN</div><h2>Every fee buys $HODLEM and burns it.</h2><p>100% of the creator fees from $HODLEM trades are used to buy $HODLEM on the open market and burn it forever. Every burn is on-chain and listed here.</p></div>
+    <div class="flow">
+      <div><em>⇄</em>SOMEONE TRADES $HODLEM</div>
+      <div><em>%</em>A CREATOR FEE IS PAID</div>
+      <div><em>⇩</em>THE FEE IS CLAIMED</div>
+      <div><em>₿</em>IT BUYS $HODLEM</div>
+      <div><em>✕</em>THE TOKENS ARE BURNED</div>
+    </div>
+    <div class="stats">
+      <div class="stat"><span>TOTAL BURNED</span><b id="bBurned" class="or">—</b></div>
+      <div class="stat"><span>% OF SUPPLY</span><b id="bPct">—</b></div>
+      <div class="stat"><span>FEES WAITING · SOL</span><b id="bFees">—</b></div>
+      <div class="stat"><span>BURNS LISTED</span><b id="bCount">—</b></div>
+    </div>
+    <div class="bar" style="margin-top:14px"><i id="burnBar"></i></div>
+    <div class="grid2" style="margin-top:26px">
+      <div class="win sw">
+        <div class="tb"><span class="ti"><img src="/img/i-bin-16.png" alt="">Burns</span><span class="tbtns"><button type="button" class="x" aria-label="Close">✕</button></span></div>
+        <div class="ledger sunken" style="margin:6px"><table class="xp-list"><thead><tr><th>Date</th><th class="r">Burned</th><th>Transaction</th></tr></thead><tbody id="bRows"><tr><td colspan="3">Loading…</td></tr></tbody></table></div>
+        <div class="statusbar"><span class="grow" id="bStatus">Reading the chain…</span></div>
+      </div>
+      <div class="win sw burnwin" id="burnWin">
+        <div class="tb"><span class="ti"><img src="/img/i-bin-16.png" alt="">Burn $HODLEM</span><span class="tbtns"><button type="button" class="x" aria-label="Close">✕</button></span></div>
+        <div class="bw-in">
+          <div class="bw-row"><button class="xp-btn" type="button" id="wBtn">Connect Wallet</button><span id="wLabel" style="color:#444">Any Solana wallet</span></div>
+          <div class="bw-kv sunken"><span>Your SOL</span><b id="wSol">—</b><span>Your $HODLEM</span><b id="wTok">—</b><span>Creator fees you can claim</span><b id="wClaim">—</b></div>
+          <div class="groupbox"><span class="lg">Burn</span>
+            <label class="xp-check" style="margin-bottom:6px"><input type="checkbox" id="bClaim" disabled><i></i>Claim creator fees first and burn them (creator wallet)</label>
+            <div class="bw-row">Add SOL from wallet: <input class="xp-input" id="bSol" inputmode="decimal" placeholder="0.0"> <select class="xp-input" id="bSlip" aria-label="Slippage"><option value="2">2% slippage</option><option value="5" selected>5% slippage</option><option value="10">10% slippage</option></select></div>
+            <div class="bw-row"><button class="xp-btn" type="button" id="bGo" style="width:160px">Buy &amp; Burn</button><span id="bQuote" style="color:#444"></span></div>
+          </div>
+          <div class="bw-st sunken" id="bSt"></div>
+          <p style="margin:10px 0 0;color:#555;font-size:11px">Your wallet signs one transaction: (claim) → buy $HODLEM → burn exactly what was bought. Nothing is held by this site.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="tables">
+  <div class="wrap">
+    <div class="sec-h"><div class="k">THE TABLES</div><h2>Five epochs. Five tables.</h2><p>Each halving opens a new table: the starting stack is that epoch's block reward, and the bot gets sharper. Tables unlock as $HODLEM's market cap grows.</p></div>
+    <div class="epochs" id="epochs"></div>
+  </div>
+</section>
+
+<section class="sec" id="stats">
+  <div class="wrap">
+    <div class="sec-h"><div class="k">STATS</div><h2>Hands dealt.</h2></div>
+    <div class="stats">
+      <div class="stat"><span>HANDS DEALT WORLDWIDE</span><b id="sGlobal" class="or">—</b></div>
+      <div class="stat"><span>YOUR HANDS</span><b id="sHands">0</b></div>
+      <div class="stat"><span>POTS WON</span><b id="sWon">0</b></div>
+      <div class="stat"><span>BIGGEST POT</span><b id="sBig">—</b></div>
+    </div>
+    <div class="stats" style="margin-top:12px">
+      <div class="stat"><span>BEST STACK</span><b id="sBest">—</b></div>
+      <div class="stat"><span>SHOWDOWNS</span><b id="sShow">0</b></div>
+      <div class="stat"><span>TIMES YOU BUSTED</span><b id="sBust">0</b></div>
+      <div class="stat"><span>BOTS YOU BUSTED</span><b id="sBot">0</b></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="faq">
+  <div class="wrap">
+    <div class="sec-h"><div class="k">FAQ</div><h2>Questions.</h2></div>
+    <div class="faq">
+      <details open><summary>Did Satoshi really put poker in Bitcoin?</summary><p>Yes. Bitcoin v0.1's source has a "Poker Lobby" window (Open New Table) and a "Poker" window with Deal Hand, Fold, Call, Raise and Leave Table buttons, plus Deal Me Out and pre-action boxes. The game logic was never written. <a href="https://github.com/trottier/original-bitcoin/blob/master/src/uibase.h#L618-L688" target="_blank" rel="noopener">See uibase.h</a>.</p></details>
+      <details><summary>Is this gambling?</summary><p>No. Every chip is play money. You start with 50 play BTC, the first block reward, and you can always Generate Coins again. Nothing here can be bought, sold or cashed out.</p></details>
+      <details><summary>How do I play inside X?</summary><p>Post or share the site link. X turns it into a player card: tap play and the table opens inside the post. Keys work too: D deal, F fold, C call, R raise, L leave.</p></details>
+      <details><summary>What happens to the creator fees?</summary><p id="faqFees">All $HODLEM creator fees are used to buy $HODLEM and burn it. The Burn window above does it in one transaction the creator wallet signs, and the Burns list reads every burn from the chain. Anyone can also buy and burn with their own SOL.</p></details>
+      <details><summary>How is "burned" counted?</summary><p>Every pump.fun coin starts with 1,000,000,000 tokens. Burned is that minus today's on-chain supply, so it counts every burn by anyone, not just ours.</p></details>
+      <details><summary>Who is the bot?</summary><p>At the Genesis table it sits as 1A1zP1…DivfNa, the address that got Bitcoin's first 50 coins. Later tables are named after the halving blocks. It plays real poker math: Monte Carlo equity, pot odds, a few bluffs.</p></details>
+      <details><summary>Is this affiliated with Bitcoin or Satoshi?</summary><p>No. HODLEM is a fan project and a memecoin. The Bitcoin v0.1 code is © 2009 Satoshi Nakamoto under the MIT license; the windows here are recreated from it.</p></details>
+    </div>
+  </div>
+</section>
+
+<footer class="foot">
+  <div class="wrap foot-in">
+    <div>HODLEM · SATOSHI'S UNFINISHED POKER GAME<br>PLAY MONEY ONLY · NOT FINANCIAL ADVICE</div>
+    <div id="footLinks"><a href="#proof">PROOF</a><a href="#burn">BURN</a><a href="#faq">FAQ</a></div>
+  </div>
+</footer>
+
+<div class="modal" id="wModal" hidden><div class="xp-msgbox"><div class="tb"><span class="ti">Connect a wallet</span></div><div class="bw-in" id="wList"></div><div class="mb-bt"><button class="xp-btn" type="button" id="wClose">Cancel</button></div></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="/js/poker.js?v=3" defer></script>
+<script src="/js/table.js?v=3" defer></script>
+<script src="/js/site.js?v=3" defer></script>
+</body>
+</html>
